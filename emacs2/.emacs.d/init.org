@@ -1,0 +1,419 @@
+#+SEQ_TODO: REMOVE(r) TODO(t) IMPROVING(i) | DONE(d) CANCELLED(c)
+Welcome to my emacs config. Always improving trying to improve it. I think.
+
+* startup speed tweaks
+#+BEGIN_SRC emacs-lisp
+(setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
+      gc-cons-percentage 0.6)
+
+(add-hook 'emacs-startup-hook
+  (lambda ()
+    (setq gc-cons-threshold 16777216 ; 16mb
+          gc-cons-percentage 0.1)))
+#+END_SRC
+* bootstrap
+#+BEGIN_SRC emacs-lisp
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	(bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+
+  (straight-use-package 'use-package)
+#+END_SRC
+* Cosmetics
+#+BEGIN_SRC emacs-lisp
+  ;; Treat all themes as safe
+  (setq custom-safe-themes t)
+
+  ;;theme
+  ;; (use-package modus-themes
+  ;;   :straight t
+  ;;   :config   (load-theme 'modus-operandi t))
+  (use-package jazz-theme
+    :straight t
+    :config (load-theme 'jazz t))
+  ;;disable toolbar 
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+
+  ;;disable scrollbar on emacsclient
+  (defun my/disable-scroll-bars (frame)
+    (modify-frame-parameters frame
+			     '((vertical-scroll-bars . nil)
+			       (horizontal-scroll-bars . nil))))
+  (add-hook 'after-make-frame-functions 'my/disable-scroll-bars) 
+
+  ;; (global-visual-line-mode 1)
+  (show-paren-mode 1)
+
+  ;; line numbers
+  (add-hook 'text-mode-hook 'linum-mode)
+  (add-hook 'prog-mode-hook 'linum-mode)
+
+  ;;font
+  (set-face-font 'default "hack-12")
+  (setq default-frame-alist '((font . "hack-12"))) ;; set default font for emacs --daemon / emacsclient
+  ;;(add-to-list 'default-frame-alist '(font . "xos4 terminus-10"))
+#+END_SRC
+* keybinds
+#+BEGIN_SRC emacs-lisp
+  (global-unset-key "\C-z")
+
+  ;; automaticly switch to new windows on splits
+  (global-set-key "\C-x2" (lambda () (interactive)(split-window-vertically) (other-window 1)))
+  (global-set-key "\C-x3" (lambda () (interactive)(split-window-horizontally) (other-window 1)))
+
+  ;; switch to previous buffer
+  (defun er-switch-to-previous-buffer ()
+    "Switch to previously open buffer.
+  Repeated invocations toggle between the two most recently open buffers."
+    (interactive)
+    (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+  (use-package project
+    :bind
+    ("C-c p f" . project-find-file))
+#+END_SRC
+* Bakcup Settings
+#+BEGIN_SRC emacs-lisp
+(setq
+ backup-by-copying t      ; don't clobber symlinks
+ backup-directory-alist
+  '(("." . "~/.cache/emacs-backups/"))    ; don't litter my fs tree
+ delete-old-versions t
+ kept-new-versions 6
+ kept-old-versions 2
+ version-control t)       ; use versioned backups
+#+END_SRC
+* Programming
+** language server
+#+BEGIN_SRC emacs-lisp
+  (use-package eglot
+    :straight t
+    :config (add-to-list 'eglot-server-programs '(c++-mode . ("clangd")))
+    )
+#+END_SRC
+** Syntax Checker
+ #+BEGIN_SRC emacs-lisp
+   (use-package flymake
+     :straight t)
+
+   (use-package flymake-diagnostic-at-point
+     :straight t
+     :after flymake
+     :hook (flymake-mode . flymake-diagnostic-at-point-mode))
+ #+END_SRC
+** Completion Framework
+ #+BEGIN_SRC emacs-lisp
+ (use-package company
+   :straight t
+   :bind (:map company-active-map
+	       ("C-n" . company-select-next)
+	       ("C-p" . company-select-previous))
+   :custom
+   (company-backends '(company-capf))
+   :init
+   (setq company-idle-delay 0)
+   (setq company-minimum-prefix-length 2)
+   (setq company-require-match 'never))
+ #+END_SRC
+** REPL
+#+begin_src emacs-lisp
+  (use-package geiser
+    :straight t)
+#+end_src
+** languages
+*** Haskell
+ #+BEGIN_SRC emacs-lisp
+   (use-package haskell-mode
+     :straight t
+     :hook
+     (haskell-mode . interactive-haskell-mode)
+     )
+ #+END_SRC
+*** Common Lisp
+ #+BEGIN_SRC emacs-lisp
+   (use-package slime
+     :straight t
+     :custom (inferior-lisp-program "sbcl")
+
+     )
+ #+END_SRC
+*** nix
+#+begin_src emacs-lisp
+    (use-package nix-mode
+      :straight t)
+#+end_src
+* package configs
+** Hydras
+*** hydra
+ #+BEGIN_SRC emacs-lisp
+ (use-package hydra
+   :straight t)
+ #+END_SRC
+*** multiple cursors hydra
+    An hydra for multiple cursors commands.
+
+ #+BEGIN_SRC emacs-lisp
+ (global-set-key (kbd "C-c c")
+		 (defhydra cqql-multiple-cursors-hydra (:hint nil)
+   "
+      ^Up^            ^Down^        ^Miscellaneous^
+ ----------------------------------------------
+ [_p_]   Next    [_n_]   Next    [_l_] Edit lines
+ [_P_]   Skip    [_N_]   Skip    [_a_] Mark all
+ [_M-p_] Unmark  [_M-n_] Unmark  [_q_] Quit"
+   ("l" mc/edit-lines :exit t)
+   ("a" mc/mark-all-like-this :exit t)
+   ("n" mc/mark-next-like-this)
+   ("N" mc/skip-to-next-like-this)
+   ("M-n" mc/unmark-next-like-this)
+   ("p" mc/mark-previous-like-this)
+   ("P" mc/skip-to-previous-like-this)
+   ("M-p" mc/unmark-previous-like-this)
+   ("q" nil)))
+ #+END_SRC
+** Dired
+*** misc dired settings
+    hide dired details automaticly
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package dired
+     :hook
+     (dired-mode . dired-hide-details-mode)
+     :bind (:map dired-mode-map
+		 ("." . hydra-dired/body))
+     :custom
+     (dired-dwim-target t)
+     )
+ #+END_SRC
+*** dired recent folders
+ #+BEGIN_SRC emacs-lisp
+   (use-package dired-recent
+     :straight t
+     :config
+     (dired-recent-mode 1))
+ #+END_SRC
+*** dired icons
+ #+BEGIN_SRC emacs-lisp
+   (use-package all-the-icons-dired
+     :straight t
+     :hook (dired-mode . all-the-icons-dired-mode)
+     )
+ #+END_SRC
+** Minibuffer Completion Tools
+*** ivy
+   light completion framework for emacs.
+ #+BEGIN_SRC emacs-lisp
+   (use-package ivy
+     :straight t
+     :bind
+     ("C-c v" . ivy-push-view)
+     ("C-c V" . ivy-pop-view)
+     :custom
+     (ivy-use-virtual-buffers t)
+     :init
+     (ivy-mode 1))
+ #+END_SRC
+*** counsel
+    enforce the use of ivy.
+ #+BEGIN_SRC emacs-lisp
+   (use-package counsel
+     :straight t
+     :after ivy
+     :bind
+     ("C-c f" .  counsel-fzf)
+     :config
+     (counsel-mode 1))
+ #+END_SRC 
+*** swiper
+    isearch alternative that shows a preview of all the searches
+ #+BEGIN_SRC emacs-lisp
+   (use-package swiper
+     :straight t
+     :bind
+     ("C-s" . swiper-isearch)
+     )
+ #+END_SRC
+** help tools
+ #+BEGIN_SRC emacs-lisp
+     (use-package which-key
+       :straight t
+       :config
+       (which-key-mode t)
+       (setq which-key-idle-delay 1.0))
+ #+END_SRC
+** pdf
+ #+BEGIN_SRC emacs-lisp
+   (use-package pdf-tools
+     :straight t
+     :defer t
+     :hook 
+     (doc-view-mode . pdf-tools-install))
+
+   (use-package pdf-view-restore
+     :straight t
+     :after pdf-tools
+     :hook
+     (pdf-view-mode-hook . pdf-view-restore-mode))
+ #+END_SRC
+** magit
+    the best git frontend. ever.
+ #+BEGIN_SRC emacs-lisp
+ (use-package magit
+   :straight t
+   :bind ("C-c g" . magit))
+ #+END_SRC
+** Text Modifing Tools
+*** matching parenthese
+ #+BEGIN_SRC emacs-lisp
+ (electric-pair-mode 1)
+ #+END_SRC
+*** multiple cursors
+    edit multiple line at the same time.
+ #+BEGIN_SRC emacs-lisp
+ (use-package multiple-cursors
+   :straight t)
+ #+END_SRC
+*** snippets
+  #+BEGIN_SRC emacs-lisp
+    (use-package yasnippet
+      :straight t
+      :hook (eglot-server-initialized . yas-minor-mode))
+
+    (use-package yasnippet-snippets
+ ;     :straight (yasnippet-snippets :type git :host github :repo "AndreaCrotti/yasnippet-snippets"))
+      :straight t)
+  #+END_SRC
+*** expand region
+  #+BEGIN_SRC emacs-lisp
+  (use-package expand-region
+  :straight t
+  :bind ("C-c e" . er/expand-region))
+  #+END_SRC
+** TODO elfeed
+** TODO mpd frontend
+** TODO w3m
+* org
+** org-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :straight t
+    :hook
+    (org-mode . org-bullets-mode))
+
+  (add-to-list 'org-modules "org-habit")
+  (setq org-todo-repeat-to-state t) ;; repeats habit to state specified in properties
+  (setq org-src-tab-acts-natively t) ;; native indentation inside org-mode blocks
+
+  (setq org-todo-keywords
+	(quote ((sequence "TODO(t)" "HABIT(h)" "NEXT(n)" "|" "DONE(d)")
+		(sequence "WAITING(w@/!)"  "|" "CANCELLED(c@/!)"))))
+
+  (setq org-todo-keyword-faces
+	(quote (("TODO" :foreground "red" :weight bold)
+		("NEXT" :foreground "blue" :weight bold)
+		("DONE" :foreground "forest green" :weight bold)
+		("DONE" :foreground "forest green" :weight bold)
+		("WAITING" :foreground "orange" :weight bold)
+		("CANCELLED" :foreground "forest green" :weight bold))))
+
+#+END_SRC
+** org-capture
+#+BEGIN_SRC emacs-lisp
+  (use-package org-capture
+    :config 
+    (setq org-capture-templates 
+	  '(("t" "todo" entry (file+headline "~/Sync/org/agenda/life.org" "Todo") "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t) ;; Creates a TODO headline in the entry "Todo". If there is a marked region, it will be copied over.
+	    ("s" "scheduled" entry (file+headline "~/Sync/org/agenda/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^T \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
+	    ("n" "note" entry (file "~/Sync/org/agenda/notes.org")  "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+	    ("h" "Habit" entry (file+headline "~/Sync/org/agenda/life.org" "Habit") "* TODO %? :habit:\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+	    ))
+    :bind ("<f11>" . counsel-org-capture))
+#+END_SRC
+** org-agenda
+#+BEGIN_SRC emacs-lisp
+  (use-package org-agenda
+    :custom
+    (org-agenda-files '("~/Sync/org/agenda"))
+    (org-agenda-dim-blocked-tasks nil) ;; Do not dim blocked tasks
+    (org-agenda-compact-blocks t) ;; Compact the block agenda view
+    :bind
+    ("<f12>" . org-agenda)
+    :config
+    (setq org-use-fast-todo-selection t)
+
+
+
+    (setq org-agenda-custom-commands
+	  (quote (("N" "Notes" tags "NOTE"
+		   ((org-agenda-overriding-header "Notes")
+		    (org-tags-match-list-sublevels t)))
+		  ("h" "Habits" tags-todo "STYLE=\"habit\""
+		   ((org-agenda-overriding-header "Habits")
+		    (org-agenda-sorting-strategy
+		     '(todo-state-down effort-up category-keep))))
+		  (" " "agenda"
+		   ((agenda "" nil) ;; first element
+		    (tags-todo "-habit/NEXT"
+			       ((org-agenda-overriding-header "Next")))
+		    (tags-todo "-habit/TODO"
+			       ((org-agenda-overriding-header "Todo")))
+		    (tags-todo "habit"
+			       ((org-agenda-overriding-header "habits")))
+		    (tags-todo "/WAITING"
+			       ((org-agenda-overriding-header "waiting")))
+
+
+		    ))
+		  )))
+
+    )
+#+END_SRC
+* writting
+** Latex
+#+BEGIN_SRC emacs-lisp
+    (use-package tex
+      :straight auctex
+      :custom
+      (TeX-auto-save t)
+      (TeX-parse-self t)
+      (TeX-master nil)
+      ;; preview latex pdf with pdf-tools
+      (TeX-view-program-selection '((output-pdf "pdf-tools"))
+				  TeX-source-correlate-start-server t)
+      (TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
+      (TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+      :hook (LaTeX-mode . (lambda ()
+			    (turn-on-reftex)
+			    (setq reftex-plug-into-AUCTeX t)
+			    (reftex-isearch-minor-mode)
+			    (setq TeX-PDF-mode t)
+  ;			  (auto-fill-mode t)
+  ;			  (setq fill-column 100)
+			    (setq TeX-source-correlate-method 'synctex)
+			    (setq TeX-source-correlate-start-server t)))
+      :config
+      (when (version< emacs-version "26")
+	(add-hook LaTeX-mode-hook #'display-line-numbers-mode))
+      )
+#+END_SRC
+** TODO org-mode
+   org-export maybe
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-create-formula-image-program 'imagemagick) ;; create latex fragment
+#+END_SRC
+** TODO spell checker
+#+BEGIN_SRC emacs-lisp
+  (use-package flyspell)
+  (use-package ispell)
+#+END_SRC

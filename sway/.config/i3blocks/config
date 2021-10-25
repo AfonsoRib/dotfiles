@@ -1,0 +1,23 @@
+[network]
+command=barnetwork
+interval= 60
+
+[ram]
+command=barram
+interval= 60
+
+[storage]
+command=storage
+interval=600
+
+[battery]
+command=barbattery
+interval= 60
+
+[date]
+command=barcal
+interval= 600
+
+[clock]
+command=barclock
+interval=60

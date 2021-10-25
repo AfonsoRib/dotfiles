@@ -1,0 +1,4 @@
+#!/bin/sh
+FREERAM="$(free -h | awk 'NR==2 {print $3}')"
+echo "  $FREERAM "  
+
