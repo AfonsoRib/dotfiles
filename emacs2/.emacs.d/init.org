@@ -45,6 +45,7 @@ Welcome to my emacs config. Always improving trying to improve it. I think.
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
 
+  (global-hl-line-mode 1)
   ;;disable scrollbar on emacsclient
   (defun my/disable-scroll-bars (frame)
     (modify-frame-parameters frame
