@@ -304,6 +304,13 @@ Welcome to my emacs config. Always improving trying to improve it. I think.
   :straight t
   :bind ("C-c e" . er/expand-region))
   #+END_SRC
+** navigation tools
+#+begin_src emacs-lisp
+  (use-package ace-window
+      :straight t
+      :bind
+      ("C-x o" . ace-window))
+#+end_src
 ** TODO elfeed
 ** TODO mpd frontend
 ** TODO w3m
