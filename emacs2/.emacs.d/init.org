@@ -55,6 +55,9 @@ Welcome to my emacs config. Always improving trying to improve it. I think.
 
   ;; (global-visual-line-mode 1)
   (show-paren-mode 1)
+  (setq show-paren-style 'expression)
+  (setq show-paren-when-point-in-periphery t)
+  (setq show-paren-when-point-inside-paren nil)
 
   ;; line numbers
   (add-hook 'text-mode-hook 'linum-mode)
