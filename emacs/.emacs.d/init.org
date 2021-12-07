@@ -215,39 +215,20 @@ Welcome to my emacs config. Always improving trying to improve it. I think.
      )
  #+END_SRC
 ** Minibuffer Completion Tools
-*** ivy
-   light completion framework for emacs.
- #+BEGIN_SRC emacs-lisp
-   (use-package ivy
-     :straight t
-     :bind
-     ("C-c v" . ivy-push-view)
-     ("C-c V" . ivy-pop-view)
-     :custom
-     (ivy-use-virtual-buffers t)
-     :init
-     (ivy-mode 1))
- #+END_SRC
-*** counsel
-    enforce the use of ivy.
- #+BEGIN_SRC emacs-lisp
-   (use-package counsel
-     :straight t
-     :after ivy
-     :bind
-     ("C-c f" .  counsel-fzf)
-     :config
-     (counsel-mode 1))
- #+END_SRC 
-*** swiper
-    isearch alternative that shows a preview of all the searches
- #+BEGIN_SRC emacs-lisp
-   (use-package swiper
-     :straight t
-     :bind
-     ("C-s" . swiper-isearch)
-     )
- #+END_SRC
+*** vetico
+    #+begin_src emacs-lisp
+	    (use-package vertico
+	      :straight t
+	      :config (vertico-mode))
+
+	    (use-package orderless
+	      :straight t
+	      :custom (completion-styles '(orderless)))
+
+	    (use-package ctrlf
+	      :straight t
+	      :config (ctrlf-mode t))
+    #+end_src
 ** help tools
  #+BEGIN_SRC emacs-lisp
      (use-package which-key
