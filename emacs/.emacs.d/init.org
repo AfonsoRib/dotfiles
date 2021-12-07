@@ -37,9 +37,9 @@ Welcome to my emacs config. Always improving trying to improve it. I think.
   ;; (use-package modus-themes
   ;;   :straight t
   ;;   :config   (load-theme 'modus-operandi t))
-  (use-package jazz-theme
+  (use-package modus-themes
     :straight t
-    :config (load-theme 'jazz t))
+    :config (load-theme 'modus-operandi t))
   ;;disable toolbar 
   (menu-bar-mode -1)
   (tool-bar-mode -1)
