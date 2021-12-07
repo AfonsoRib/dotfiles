@@ -325,18 +325,18 @@ Welcome to my emacs config. Always improving trying to improve it. I think.
   (use-package org-capture
     :config 
     (setq org-capture-templates 
-	  '(("t" "todo" entry (file+headline "~/Sync/org/agenda/life.org" "Todo") "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t) ;; Creates a TODO headline in the entry "Todo". If there is a marked region, it will be copied over.
-	    ("s" "scheduled" entry (file+headline "~/Sync/org/agenda/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^T \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
-	    ("n" "note" entry (file "~/Sync/org/agenda/notes.org")  "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-	    ("h" "Habit" entry (file+headline "~/Sync/org/agenda/life.org" "Habit") "* TODO %? :habit:\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+	  '(("t" "todo" entry (file+headline "~/org/life.org" "Todo") "* TODO %?\n%U\n" :clock-in t :clock-resume t) ;; Creates a TODO headline in the entry "Todo". If there is a marked region, it will be copied over.
+	    ("s" "scheduled" entry (file+headline "~/org/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^T \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
+	    ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n%U\n\n")
+	    ("h" "Habit" entry (file+headline "~/org/life.org" "Habit") "* TODO %? :habit:\n%U\n\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
 	    ))
-    :bind ("<f11>" . counsel-org-capture))
+    :bind ("<f11>" . org-capture))
 #+END_SRC
 ** org-agenda
 #+BEGIN_SRC emacs-lisp
   (use-package org-agenda
     :custom
-    (org-agenda-files '("~/Sync/org/agenda"))
+    (org-agenda-files '("~/org/"))
     (org-agenda-dim-blocked-tasks nil) ;; Do not dim blocked tasks
     (org-agenda-compact-blocks t) ;; Compact the block agenda view
     :bind
