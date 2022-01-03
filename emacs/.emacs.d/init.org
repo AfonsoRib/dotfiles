@@ -1,16 +1,3 @@
-#+SEQ_TODO: REMOVE(r) TODO(t) IMPROVING(i) | DONE(d) CANCELLED(c)
-Welcome to my emacs config. Always improving trying to improve it. I think.
-
-* startup speed tweaks
-#+BEGIN_SRC emacs-lisp
-(setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
-      gc-cons-percentage 0.6)
-
-(add-hook 'emacs-startup-hook
-  (lambda ()
-    (setq gc-cons-threshold 16777216 ; 16mb
-          gc-cons-percentage 0.1)))
-#+END_SRC
 * bootstrap
 #+BEGIN_SRC emacs-lisp
   (defvar bootstrap-version)
@@ -25,67 +12,33 @@ Welcome to my emacs config. Always improving trying to improve it. I think.
 	(goto-char (point-max))
 	(eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
-
-  (straight-use-package 'use-package)
 #+END_SRC
 * Cosmetics
 #+BEGIN_SRC emacs-lisp
-  ;; Treat all themes as safe
   (setq custom-safe-themes t)
 
-  ;;theme
-  ;; (use-package modus-themes
-  ;;   :straight t
-  ;;   :config   (load-theme 'modus-operandi t))
-  (use-package modus-themes
-    :straight t
-    :config (load-theme 'modus-operandi t))
-  ;;disable toolbar 
+  (straight-use-package 'modus-themes)
+  (load-theme 'modus-operandi t)
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
 
-  (global-hl-line-mode 1)
-  ;;disable scrollbar on emacsclient
   (defun my/disable-scroll-bars (frame)
     (modify-frame-parameters frame
 			     '((vertical-scroll-bars . nil)
 			       (horizontal-scroll-bars . nil))))
   (add-hook 'after-make-frame-functions 'my/disable-scroll-bars) 
 
-  ;; (global-visual-line-mode 1)
   (show-paren-mode 1)
   (setq show-paren-style 'expression)
   (setq show-paren-when-point-in-periphery t)
   (setq show-paren-when-point-inside-paren nil)
 
-  ;; line numbers
   (add-hook 'text-mode-hook 'linum-mode)
   (add-hook 'prog-mode-hook 'linum-mode)
 
-  ;;font
   (set-face-font 'default "hack-12")
   (setq default-frame-alist '((font . "hack-12"))) ;; set default font for emacs --daemon / emacsclient
-  ;;(add-to-list 'default-frame-alist '(font . "xos4 terminus-10"))
-#+END_SRC
-* keybinds
-#+BEGIN_SRC emacs-lisp
-  (global-unset-key "\C-z")
-
-  ;; automaticly switch to new windows on splits
-  (global-set-key "\C-x2" (lambda () (interactive)(split-window-vertically) (other-window 1)))
-  (global-set-key "\C-x3" (lambda () (interactive)(split-window-horizontally) (other-window 1)))
-
-  ;; switch to previous buffer
-  (defun er-switch-to-previous-buffer ()
-    "Switch to previously open buffer.
-  Repeated invocations toggle between the two most recently open buffers."
-    (interactive)
-    (switch-to-buffer (other-buffer (current-buffer) 1)))
-
-  (use-package project
-    :bind
-    ("C-c p f" . project-find-file))
 #+END_SRC
 * Bakcup Settings
 #+BEGIN_SRC emacs-lisp
@@ -98,211 +51,102 @@ Welcome to my emacs config. Always improving trying to improve it. I think.
  version-control t      ; use versioned backups
  auto-save-default nil)
 #+END_SRC
-* Programming
-** language server
+* keybinds
 #+BEGIN_SRC emacs-lisp
-  (use-package eglot
-    :straight t
-    :config (add-to-list 'eglot-server-programs '(c++-mode . ("clangd")))
-    )
+  (global-unset-key "\C-z")
 #+END_SRC
-** Syntax Checker
- #+BEGIN_SRC emacs-lisp
-   (use-package flymake
-     :straight t)
-
-   (use-package flymake-diagnostic-at-point
-     :straight t
-     :after flymake
-     :hook (flymake-mode . flymake-diagnostic-at-point-mode))
- #+END_SRC
-** Completion Framework
- #+BEGIN_SRC emacs-lisp
- (use-package company
-   :straight t
-   :bind (:map company-active-map
-	       ("C-n" . company-select-next)
-	       ("C-p" . company-select-previous))
-   :custom
-   (company-backends '(company-capf))
-   :init
-   (setq company-idle-delay 0)
-   (setq company-minimum-prefix-length 2)
-   (setq company-require-match 'never))
- #+END_SRC
-** REPL
-#+begin_src emacs-lisp
-  (use-package geiser
-    :straight t)
-#+end_src
+* Programming
+** ide features
+#+BEGIN_SRC emacs-lisp
+  (require 'flymake)
+  (straight-use-package 'flymake)
+  (straight-use-package 'flymake-diagnostic-at-point)
+  (add-hook 'flymake-mode-hook 'flymake-diagnostic-at-point-mode)
+  (straight-use-package 'company)
+  (with-eval-after-load 'company
+    (define-key company-active-map (kbd "C-n") 'company-select-next)
+    (define-key company-active-map (kbd "C-p") 'company-select-previous))
+  (setq company-idle-delay 0
+	company-minimum-prefix-length 2
+	company-require-match 'never)
+  (straight-use-package 'geiser)
+  (straight-use-package 'eglot)
+#+END_SRC
 ** languages
 *** Haskell
  #+BEGIN_SRC emacs-lisp
-   (use-package haskell-mode
-     :straight t
-     :hook
-     (haskell-mode . interactive-haskell-mode)
-     )
+   (straight-use-package 'haskell-mode)
  #+END_SRC
 *** Common Lisp
  #+BEGIN_SRC emacs-lisp
-   (use-package slime
-     :straight t
-     :custom (inferior-lisp-program "sbcl")
-
-     )
+   (straight-use-package 'slime)
+   (setq inferior-lisp-program "sbcl")
  #+END_SRC
 *** nix
 #+begin_src emacs-lisp
-    (use-package nix-mode
-      :straight t)
+    (straight-use-package 'nix-mode)
 #+end_src
 * package configs
-** Hydras
-*** hydra
- #+BEGIN_SRC emacs-lisp
- (use-package hydra
-   :straight t)
- #+END_SRC
-*** multiple cursors hydra
-    An hydra for multiple cursors commands.
-
- #+BEGIN_SRC emacs-lisp
- (global-set-key (kbd "C-c c")
-		 (defhydra cqql-multiple-cursors-hydra (:hint nil)
-   "
-      ^Up^            ^Down^        ^Miscellaneous^
- ----------------------------------------------
- [_p_]   Next    [_n_]   Next    [_l_] Edit lines
- [_P_]   Skip    [_N_]   Skip    [_a_] Mark all
- [_M-p_] Unmark  [_M-n_] Unmark  [_q_] Quit"
-   ("l" mc/edit-lines :exit t)
-   ("a" mc/mark-all-like-this :exit t)
-   ("n" mc/mark-next-like-this)
-   ("N" mc/skip-to-next-like-this)
-   ("M-n" mc/unmark-next-like-this)
-   ("p" mc/mark-previous-like-this)
-   ("P" mc/skip-to-previous-like-this)
-   ("M-p" mc/unmark-previous-like-this)
-   ("q" nil)))
+** misc package declarations
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'hydra)
+  (straight-use-package 'magit)
  #+END_SRC
 ** Dired
-*** misc dired settings
-    hide dired details automaticly
-
  #+BEGIN_SRC emacs-lisp
-   (use-package dired
-     :hook
-     (dired-mode . dired-hide-details-mode)
-     :bind (:map dired-mode-map
-		 ("." . hydra-dired/body))
-     :custom
-     (dired-dwim-target t)
-     )
+   (require 'dired)
+   (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+   (setq dired-dwim-target t)
  #+END_SRC
-*** dired recent folders
- #+BEGIN_SRC emacs-lisp
-   (use-package dired-recent
-     :straight t
-     :config
-     (dired-recent-mode 1))
- #+END_SRC
-*** dired icons
- #+BEGIN_SRC emacs-lisp
-   (use-package all-the-icons-dired
-     :straight t
-     :hook (dired-mode . all-the-icons-dired-mode)
-     )
- #+END_SRC
-** Minibuffer Completion Tools
-*** vetico
+** Minibuffer Tools
     #+begin_src emacs-lisp
-	    (use-package vertico
-	      :straight t
-	      :config (vertico-mode))
-
-	    (use-package orderless
-	      :straight t
-	      :custom (completion-styles '(orderless)))
-
-	    (use-package ctrlf
-	      :straight t
-	      :config (ctrlf-mode t))
+      (straight-use-package 'vertico)
+      (straight-use-package 'orderless)
+      (vertico-mode)
+      (setq completion-styles '(orderless))
+      (straight-use-package 'which-key)
+      (which-key-mode t)
+      (setq which-key-idle-delay 1.0)
     #+end_src
-** help tools
- #+BEGIN_SRC emacs-lisp
-     (use-package which-key
-       :straight t
-       :config
-       (which-key-mode t)
-       (setq which-key-idle-delay 1.0))
- #+END_SRC
-** pdf
- #+BEGIN_SRC emacs-lisp
-   (use-package pdf-tools
-     :straight t
-     :defer t
-     :hook 
-     (doc-view-mode . pdf-tools-install))
+** Text editing
+   #+BEGIN_SRC emacs-lisp
+     (electric-pair-mode 1)
+     (straight-use-package 'multiple-cursors)
+     (global-set-key (kbd "C-c c")
+		     (defhydra cqql-multiple-cursors-hydra (:hint nil)
+		       "
+	       ^Up^            ^Down^        ^Miscellaneous^
+	  ----------------------------------------------
+	  [_p_]   Next    [_n_]   Next    [_l_] Edit lines
+	  [_P_]   Skip    [_N_]   Skip    [_a_] Mark all
+	  [_M-p_] Unmark  [_M-n_] Unmark  [_q_] Quit"
+		       ("l" mc/edit-lines :exit t)
+		       ("a" mc/mark-all-like-this :exit t)
+		       ("n" mc/mark-next-like-this)
+		       ("N" mc/skip-to-next-like-this)
+		       ("M-n" mc/unmark-next-like-this)
+		       ("p" mc/mark-previous-like-this)
+		       ("P" mc/skip-to-previous-like-this)
+		       ("M-p" mc/unmark-previous-like-this)
+		       ("q" nil)))
 
-   (use-package pdf-view-restore
-     :straight t
-     :after pdf-tools
-     :hook
-     (pdf-view-mode-hook . pdf-view-restore-mode))
- #+END_SRC
-** magit
-    the best git frontend. ever.
- #+BEGIN_SRC emacs-lisp
- (use-package magit
-   :straight t
-   :bind ("C-c g" . magit))
- #+END_SRC
-** Text Modifing Tools
-*** matching parenthese
- #+BEGIN_SRC emacs-lisp
- (electric-pair-mode 1)
- #+END_SRC
-*** multiple cursors
-    edit multiple line at the same time.
- #+BEGIN_SRC emacs-lisp
- (use-package multiple-cursors
-   :straight t)
- #+END_SRC
-*** snippets
-  #+BEGIN_SRC emacs-lisp
-    (use-package yasnippet
-      :straight t
-      :hook (eglot-server-initialized . yas-minor-mode))
+     (straight-use-package 'yasnippet)
+     (straight-use-package 'yasnippet-snippets)
 
-    (use-package yasnippet-snippets
- ;     :straight (yasnippet-snippets :type git :host github :repo "AndreaCrotti/yasnippet-snippets"))
-      :straight t)
-  #+END_SRC
-*** expand region
-  #+BEGIN_SRC emacs-lisp
-  (use-package expand-region
-  :straight t
-  :bind ("C-c e" . er/expand-region))
-  #+END_SRC
-** navigation tools
+     (straight-use-package 'expand-region)
+     (global-set-key (kbd "C-c e") 'er/expand-region)
+   #+END_SRC
+* navigation
 #+begin_src emacs-lisp
-  (use-package ace-window
-      :straight t
-      :bind
-      ("C-x o" . ace-window))
+  (straight-use-package 'ace-window)
+  (global-set-key (kbd "C-x o") 'ace-window)
+  (global-set-key (kbd "C-x 2") (lambda () (interactive)(split-window-vertically) (other-window 1)))
+  (global-set-key (kbd "C-x 3") (lambda () (interactive)(split-window-horizontally) (other-window 1)))
 #+end_src
-** TODO elfeed
-** TODO mpd frontend
-** TODO w3m
 * org
 ** org-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
-    :straight t
-    :hook
-    (org-mode . org-bullets-mode))
-
+  (require 'org-habit)
   (add-to-list 'org-modules "org-habit")
   (setq org-todo-repeat-to-state t) ;; repeats habit to state specified in properties
   (setq org-src-tab-acts-natively t) ;; native indentation inside org-mode blocks
@@ -318,94 +162,56 @@ Welcome to my emacs config. Always improving trying to improve it. I think.
 		("DONE" :foreground "forest green" :weight bold)
 		("WAITING" :foreground "orange" :weight bold)
 		("CANCELLED" :foreground "forest green" :weight bold))))
-
 #+END_SRC
 ** org-capture
 #+BEGIN_SRC emacs-lisp
-  (use-package org-capture
-    :config 
-    (setq org-capture-templates 
-	  '(("t" "todo" entry (file+headline "~/org/life.org" "Todo") "* TODO %?\n%U\n" :clock-in t :clock-resume t) ;; Creates a TODO headline in the entry "Todo". If there is a marked region, it will be copied over.
-	    ("s" "scheduled" entry (file+headline "~/org/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^T \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
-	    ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n%U\n\n")
-	    ("h" "Habit" entry (file+headline "~/org/life.org" "Habit") "* TODO %? :habit:\n%U\n\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
-	    ))
-    :bind ("<f11>" . org-capture))
+  (require 'org-capture)
+  (setq org-capture-templates 
+	'(("t" "todo" entry (file+headline "~/org/life.org" "Todo") "* TODO %?\n%U\n" :clock-in t :clock-resume t) ;; Creates a TODO headline in the entry "Todo". If there is a marked region, it will be copied over.
+	  ("s" "scheduled" entry (file+headline "~/org/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^T \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
+	  ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n%U\n\n")
+	  ("h" "Habit" entry (file+headline "~/org/life.org" "Habit") "* TODO %? :habit:\n%U\n\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+	  ))
+  (global-set-key (kbd "<f11>") 'org-capture)
 #+END_SRC
 ** org-agenda
 #+BEGIN_SRC emacs-lisp
-  (use-package org-agenda
-    :custom
-    (org-agenda-files '("~/org/"))
-    (org-agenda-dim-blocked-tasks nil) ;; Do not dim blocked tasks
-    (org-agenda-compact-blocks t) ;; Compact the block agenda view
-    :bind
-    ("<f12>" . org-agenda)
-    :config
-    (setq org-use-fast-todo-selection t)
+  (setq org-agenda-files '("~/org/")
+   org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
+   org-agenda-compact-blocks t ;; Compact the block agenda view
+   org-use-fast-todo-selection t
 
-
-
-    (setq org-agenda-custom-commands
-	  (quote (("N" "Notes" tags "NOTE"
-		   ((org-agenda-overriding-header "Notes")
-		    (org-tags-match-list-sublevels t)))
-		  ("h" "Habits" tags-todo "STYLE=\"habit\""
-		   ((org-agenda-overriding-header "Habits")
-		    (org-agenda-sorting-strategy
-		     '(todo-state-down effort-up category-keep))))
-		  (" " "agenda"
-		   ((agenda "" nil) ;; first element
-		    (tags-todo "-habit/NEXT"
-			       ((org-agenda-overriding-header "Next")))
-		    (tags-todo "-habit/TODO"
-			       ((org-agenda-overriding-header "Todo")))
-		    (tags-todo "habit"
-			       ((org-agenda-overriding-header "habits")))
-		    (tags-todo "/WAITING"
-			       ((org-agenda-overriding-header "waiting")))
-
-
-		    ))
-		  )))
-
-    )
+   org-agenda-custom-commands
+	(quote (("N" "Notes" tags "NOTE"
+		 ((org-agenda-overriding-header "Notes")
+		  (org-tags-match-list-sublevels t)))
+		("h" "Habits" tags-todo "STYLE=\"habit\""
+		 ((org-agenda-overriding-header "Habits")
+		  (org-agenda-sorting-strategy
+		   '(todo-state-down effort-up category-keep))))
+		(" " "agenda"
+		 ((agenda "" nil) ;; first element
+		  (tags-todo "-habit/NEXT"
+			     ((org-agenda-overriding-header "Next")))
+		  (tags-todo "-habit/TODO"
+			     ((org-agenda-overriding-header "Todo")))
+		  (tags-todo "habit"
+			     ((org-agenda-overriding-header "habits")))
+		  (tags-todo "/WAITING"
+			     ((org-agenda-overriding-header "waiting"))))))))
+  (global-set-key (kbd "<f12>") 'org-agenda)
 #+END_SRC
 * writting
 ** Latex
 #+BEGIN_SRC emacs-lisp
-    (use-package tex
-      :straight auctex
-      :custom
-      (TeX-auto-save t)
-      (TeX-parse-self t)
-      (TeX-master nil)
-      ;; preview latex pdf with pdf-tools
-      (TeX-view-program-selection '((output-pdf "pdf-tools"))
-				  TeX-source-correlate-start-server t)
-      (TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
-      (TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
-      :hook (LaTeX-mode . (lambda ()
-			    (turn-on-reftex)
-			    (setq reftex-plug-into-AUCTeX t)
-			    (reftex-isearch-minor-mode)
-			    (setq TeX-PDF-mode t)
-  ;			  (auto-fill-mode t)
-  ;			  (setq fill-column 100)
-			    (setq TeX-source-correlate-method 'synctex)
-			    (setq TeX-source-correlate-start-server t)))
-      :config
-      (when (version< emacs-version "26")
-	(add-hook LaTeX-mode-hook #'display-line-numbers-mode))
-      )
-#+END_SRC
-** TODO org-mode
-   org-export maybe
-#+BEGIN_SRC emacs-lisp
-(setq org-latex-create-formula-image-program 'imagemagick) ;; create latex fragment
+  (require 'reftex)
+  (setq TeX-view-program-selection '((output-pdf "emacs"))
+	TeX-source-correlate-start-server t
+	TeX-view-program-list '(("emacs" "TeX-pdf-tools-sync-view"))
+	TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 #+END_SRC
 ** TODO spell checker
 #+BEGIN_SRC emacs-lisp
-  (use-package flyspell)
-  (use-package ispell)
+  ;; (use-package flyspell)
+  ;; (use-package ispell)
 #+END_SRC
