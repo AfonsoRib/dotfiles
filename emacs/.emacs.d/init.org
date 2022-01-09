@@ -34,8 +34,8 @@
   (setq show-paren-when-point-in-periphery t)
   (setq show-paren-when-point-inside-paren nil)
 
-  (add-hook 'text-mode-hook 'linum-mode)
-  (add-hook 'prog-mode-hook 'linum-mode)
+  (add-hook 'text-mode-hook 'display-line-numbers-mode)
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
   (set-face-font 'default "hack-12")
   (setq default-frame-alist '((font . "hack-12"))) ;; set default font for emacs --daemon / emacsclient
