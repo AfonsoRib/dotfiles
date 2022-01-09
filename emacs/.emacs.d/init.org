@@ -135,6 +135,8 @@
 
      (straight-use-package 'expand-region)
      (global-set-key (kbd "C-c e") 'er/expand-region)
+
+     (straight-use-package 'visual-fill-column)
    #+END_SRC
 * navigation
 #+begin_src emacs-lisp
