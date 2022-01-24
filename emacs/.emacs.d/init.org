@@ -216,4 +216,5 @@
 #+BEGIN_SRC emacs-lisp
   ;; (use-package flyspell)
   ;; (use-package ispell)
+      (setq ispell-program-name "aspell")
 #+END_SRC
