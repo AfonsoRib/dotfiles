@@ -104,6 +104,8 @@
     #+begin_src emacs-lisp
       (straight-use-package 'vertico)
       (straight-use-package 'orderless)
+      (straight-use-package 'marginalia)
+      (marginalia-mode)
       (vertico-mode)
       (setq completion-styles '(orderless))
       (straight-use-package 'which-key)
