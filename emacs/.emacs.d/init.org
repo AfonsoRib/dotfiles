@@ -210,11 +210,7 @@
 * writting
 ** Latex
 #+BEGIN_SRC emacs-lisp
-  (require 'reftex)
-  (setq TeX-view-program-selection '((output-pdf "emacs"))
-	TeX-source-correlate-start-server t
-	TeX-view-program-list '(("emacs" "TeX-pdf-tools-sync-view"))
-	TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+(straight-use-package 'latex-preview-pane)
 #+END_SRC
 ** TODO spell checker
 #+BEGIN_SRC emacs-lisp
