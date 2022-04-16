@@ -88,6 +88,10 @@
 #+begin_src emacs-lisp
     (straight-use-package 'nix-mode)
 #+end_src
+*** ocaml 
+#+begin_src emacs-lisp
+(straight-use-package 'tuareg)
+#+end_src
 * package configs
 ** misc package declarations
 #+BEGIN_SRC emacs-lisp
