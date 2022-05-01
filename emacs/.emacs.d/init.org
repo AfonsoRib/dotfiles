@@ -206,3 +206,12 @@
 #+BEGIN_SRC emacs-lisp
 (setq ispell-program-name "aspell")
 #+END_SRC
+* RSS
+#+begin_src emacs-lisp
+  (straight-use-package 'org)
+  (straight-use-package 'elfeed)
+  (straight-use-package 'elfeed-org)
+  (require 'elfeed-org)
+  (eval-after-load "org" '(elfeed-org))
+  (setq rmh-elfeed-org-files (list "~/org/elfeed.org"))
+#+end_src
