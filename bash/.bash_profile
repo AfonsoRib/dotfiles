@@ -2,7 +2,7 @@
 [ -f $HOME/.bashrc ] && . $HOME/.bashrc
 
 #default programs
-export EDITOR="emacs"
+export EDITOR="emacsclient -nc -a 'emacs'"
 export BROWSER="firefox"
 export READER="zathura"
 export TERMINAL="alacritty"
