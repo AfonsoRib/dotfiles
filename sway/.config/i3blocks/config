@@ -1,5 +1,5 @@
 [network]
-command=barnetwork
+command=sb-internet
 interval= 60
 
 [ram]
