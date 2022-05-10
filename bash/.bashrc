@@ -13,3 +13,4 @@ alias ytdl1080-playlist="yt-dlp -N 10 -f \"bestvideo[height<=1080]+bestaudio\" -
 alias ytdl1080-channel="yt-dlp -N 10 -f \"bestvideo[height<=1080]+bestaudio\" -o '%(uploader)s/%(title)s.%(ext)s'"
 alias ytdl-quick="yt-dlp -N 10 -f \"bestvideo[height<=?720][fps<=?30][vcodec!=?vp9]+bestaudio/best\""
 alias ytdl-album="yt-dlp -N 10 -x -f \"bestaudio\" --add-metadata -o '%(uploader)s/%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s'"
+alias ytdl-song="yt-dlp -N 10 -x -f \"bestaudio\" --add-metadata -o '%(uploader)s/%(title)s.%(ext)s'"
