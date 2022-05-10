@@ -1,0 +1,21 @@
+#!/bin/sh
+
+STORE_FILE="$HOME/reasons" #Change this line for your desired path
+TIME="0h 15m 0s" #change this to your desired amount of time
+
+echo "Why do you want to go to the Internet? "
+read -r REASON
+echo "Do you really want to continue? [y/n]"
+read -r ANSWER
+while test "$ANSWER" != "y" && test "$ANSWER" != "n"
+do
+    echo "Invalid Answer. Type again: "
+    read -r ANSWER
+done
+
+if test "$ANSWER" = "y"; then
+    echo "$(date '+%d/%m/%Y-%T') $TIME - $REASON" >> "$STORE_FILE"
+    sudo wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf
+    sudo systemd-run --on-active="$TIME" pkill wpa_supplicant
+    sudo dhcpcd
+fi
