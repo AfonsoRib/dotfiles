@@ -216,4 +216,13 @@
   (require 'elfeed-org)
   (eval-after-load "org" '(elfeed-org))
   (setq rmh-elfeed-org-files (list "~/org/elfeed.org"))
+
+  (defun elfeed-play-with-mpv ()
+    "Play elfeed entry link with mpv."
+    (interactive)
+    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+      (message "Opening with mpv..." )
+      (setq quality-arg "--ytdl-format=bestvideo[height<=?720][fps<=?30][vcodec!=?vp9]+bestaudio/best")
+      (start-process "elfeed-mpv" nil "mpv" quality-arg (elfeed-entry-link entry))))
+  ;;TODO Download videos
 #+end_src
