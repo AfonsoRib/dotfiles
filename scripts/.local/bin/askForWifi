@@ -1,10 +1,12 @@
 #!/bin/sh
 
 STORE_FILE="$HOME/reasons" #Change this line for your desired path
-TIME="0h 15m 0s" #change this to your desired amount of time
+
 
 echo "Why do you want to go to the Internet? "
 read -r REASON
+echo "how many minutes? (default: \"15\")?"
+read -r MIN
 echo "Do you really want to continue? [y/n]"
 read -r ANSWER
 while test "$ANSWER" != "y" && test "$ANSWER" != "n"
@@ -14,7 +16,7 @@ do
 done
 
 if test "$ANSWER" = "y"; then
-    echo "$(date '+%d/%m/%Y-%T') $TIME - $REASON" >> "$STORE_FILE"
+    echo "$(date '+%d/%m/%Y-%T') ${MIN:=15}m - $REASON" >> "$STORE_FILE"
     sudo systemctl start NetworkManager
-    sudo systemd-run --on-active="$TIME" pkill NetworkManager
+    sudo systemd-run --on-active=${MIN:=15}m pkill NetworkManager
 fi
