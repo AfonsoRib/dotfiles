@@ -26,6 +26,7 @@ export INPUTRC="${XDG_CONFIG_HOME:-$HOME/.config}/inputrc"
 export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
 export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
 export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
+export STARDICT_DATA_DIR="/home/afonso/stardict/dic"
 
 PATH="$PATH:$HOME/.local/bin:$HOME/bin"
 #GUIX_PROFILE="/home/bliss/.guix-profile"
