@@ -180,8 +180,8 @@
    org-use-fast-todo-selection t
 
    org-agenda-custom-commands
-	(quote (("N" "Notes" tags "NOTE"
-		 ((org-agenda-overriding-header "Notes")
+	(quote (("n" "Notes/Ideas" tags "NOTE"
+		 ((org-agenda-overriding-header "Notes/Ideas")
 		  (org-tags-match-list-sublevels t)))
 		("h" "Habits" tags-todo "STYLE=\"habit\""
 		 ((org-agenda-overriding-header "Habits")
