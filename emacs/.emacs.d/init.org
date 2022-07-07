@@ -233,7 +233,6 @@
 * writting
 ** Latex
 #+BEGIN_SRC emacs-lisp
-(straight-use-package 'latex-preview-pane)
 #+END_SRC
 ** spell checker
 #+BEGIN_SRC emacs-lisp
