@@ -77,6 +77,15 @@
 #+begin_src emacs-lisp
 (straight-use-package 'tuareg)
 #+end_src
+*** web-dev
+#+begin_src emacs-lisp 
+  (straight-use-package 'web-mode)
+  (straight-use-package 'company-web)
+  (require 'company-web-html)
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  (add-hook 'web-mode-hook (lambda ()
+			     (set (make-local-variable 'company-backends) '(company-web-html company-css))))
+#+end_src
 * package configs
 ** misc package declarations
 #+BEGIN_SRC emacs-lisp
