@@ -1,0 +1,12 @@
+#!/bin/sh
+SOCKET_DIR="$(emacs --batch -l server --eval "(princ server-socket-dir)")"
+SOCKETS="$(find "$SOCKET_DIR" -type s)"
+SOCKET="$(echo "$SOCKETS" | dmenu)"
+RESULT="$?"
+
+if [ -e "$SOCKET" ] ; then
+    emacsclient -c -s "$SOCKET"
+elif [ "$RESULT" = "0" ]; then
+    emacs --daemon="$SOCKET"
+    emacsclient -c -s "$SOCKET_DIR"/"$SOCKET"
+fi

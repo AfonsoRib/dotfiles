@@ -209,6 +209,7 @@ bindsym $mod+Shift+e exec emacsclient -nc -a 'emacs'
 
 # emacs dired
 bindsym $mod+Shift+d exec emacsclient -nc -a 'emacs' -e '(dired "~/")'
+bindsym $mod+Shift+s exec emacs-servers
 
 # screenshot
 bindsym Print exec maim ~/Pictures/screenshot-$(date '+%y%m%d-%H%M-%S').png
