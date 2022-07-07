@@ -166,23 +166,25 @@
   (setq org-src-tab-acts-natively t) ;; native indentation inside org-mode blocks
 
   (setq org-todo-keywords
-	(quote ((sequence "TODO(t)" "HABIT(h)" "NEXT(n)" "|" "DONE(d)")
-		(sequence "WAITING(w@/!)"  "|" "CANCELLED(c@/!)"))))
+	(quote ((sequence "TODO(t)" "HABIT(h)" "SOMEDAY(s)" "NEXT(n)" "|" "DONE(d)")
+		(sequence "WAITING(w@/!)" "|" "CANCELLED(c@/!)"))))
 
   (setq org-todo-keyword-faces
 	(quote (("TODO" :foreground "red" :weight bold)
 		("NEXT" :foreground "blue" :weight bold)
 		("DONE" :foreground "forest green" :weight bold)
 		("WAITING" :foreground "orange" :weight bold)
+		("SOMEDAY" :foreground "orange" :weight bold)
 		("CANCELLED" :foreground "forest green" :weight bold))))
 #+END_SRC
 ** org-capture
 #+BEGIN_SRC emacs-lisp
   (require 'org-capture)
   (setq org-capture-templates 
-	'(("t" "todo" entry (file+headline "~/org/life.org" "Todo") "* TODO %?\n%U\n" :clock-in t :clock-resume t) ;; Creates a TODO headline in the entry "Todo". If there is a marked region, it will be copied over.
+	'(("t" "todo" entry (file+headline "~/org/life.org" "Todo") "* TODO %?\n") ;; Creates a TODO headline in the entry "Todo". If there is a marked region, it will be copied over.
+	  ("d" "someday" entry (file+headline "~/org/life.org" "Todo") "* SOMEDAY %?\n")
 	  ("s" "scheduled" entry (file+headline "~/org/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^T \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
-	  ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n%U\n\n")
+	  ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n")
 	  ("h" "Habit" entry (file+headline "~/org/life.org" "Habit") "* NEXT %? :habit:\n%U\n\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
 	  ))
   (global-set-key (kbd "<f11>") 'org-capture)
@@ -190,11 +192,12 @@
 ** org-agenda
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files '("~/org/")
-   org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
-   org-agenda-compact-blocks t ;; Compact the block agenda view
-   org-use-fast-todo-selection t
-
-   org-agenda-custom-commands
+	org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
+	org-agenda-compact-blocks t ;; Compact the block agenda view
+	org-use-fast-todo-selection t
+	org-agenda-start-with-entry-text-mode t
+	org-agenda-start-with-log-mode t
+	org-agenda-custom-commands
 	(quote (("n" "Notes/Ideas" tags "NOTE"
 		 ((org-agenda-overriding-header "Notes/Ideas")
 		  (org-tags-match-list-sublevels t)))
@@ -204,15 +207,28 @@
 		   '(todo-state-down effort-up category-keep))))
 		(" " "agenda"
 		 ((agenda "" nil) ;; first element
+		  (tags-todo "/WAITING"
+			     ((org-agenda-overriding-header "Waiting")))
+		  (tags-todo "habit/-WAITING"
+			     ((org-agenda-overriding-header "habits")))
 		  (tags-todo "-habit/NEXT"
 			     ((org-agenda-overriding-header "Next")))
 		  (tags-todo "-habit/TODO"
 			     ((org-agenda-overriding-header "Todo")))
-		  (tags-todo "habit/-WAITING"
-			     ((org-agenda-overriding-header "habits")))
-		  (tags-todo "/WAITING"
-			     ((org-agenda-overriding-header "waiting"))))))))
+		  (tags-todo "-habit/SOMEDAY"
+			     ((org-agenda-overriding-header "Someday"))))))))
   (global-set-key (kbd "<f12>") 'org-agenda)
+
+
+
+  (defun org-archive-done-tasks ()
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+     "/DONE" 'tree))
+
 #+END_SRC
 * writting
 ** Latex
