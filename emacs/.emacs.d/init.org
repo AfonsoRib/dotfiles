@@ -237,6 +237,10 @@
 ** Latex
 #+BEGIN_SRC emacs-lisp
 #+END_SRC
+** markdown
+#+begin_src emacs-lisp
+  (straight-use-package 'markdown-mode)
+#+end_src
 ** spell checker
 #+BEGIN_SRC emacs-lisp
 (setq ispell-program-name "aspell")
