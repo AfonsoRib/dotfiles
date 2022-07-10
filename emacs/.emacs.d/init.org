@@ -231,6 +231,9 @@
 
 #+END_SRC
 * writting
+#+begin_src emacs-lisp
+(straight-use-package 'darkroom)
+#+end_src
 ** Latex
 #+BEGIN_SRC emacs-lisp
 #+END_SRC
