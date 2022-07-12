@@ -185,6 +185,7 @@
 	  ("d" "someday" entry (file+headline "~/org/life.org" "Todo") "* SOMEDAY %?\n")
 	  ("s" "scheduled" entry (file+headline "~/org/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^T \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
 	  ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n")
+	  ("b" "book" entry (file+headline "~/org/books.org" "refile")  "* %?\n:PROPERTIES:\n:AUTHOR:\n:END:" :empty-lines 1)
 	  ("h" "Habit" entry (file+headline "~/org/life.org" "Habit") "* NEXT %? :habit:\n%U\n\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
 	  ))
   (global-set-key (kbd "<f11>") 'org-capture)
