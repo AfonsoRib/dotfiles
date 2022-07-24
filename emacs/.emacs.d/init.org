@@ -186,7 +186,7 @@
 	  ("s" "scheduled" entry (file+headline "~/org/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^T \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
 	  ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n")
 	  ("b" "book" entry (file+headline "~/org/books.org" "refile")  "* %?\n:PROPERTIES:\n:AUTHOR:\n:END:" :empty-lines 1)
-	  ("h" "Habit" entry (file+headline "~/org/life.org" "Habit") "* NEXT %? :habit:\n%U\n\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+	  ("h" "Habit" entry (file+headline "~/org/life.org" "Habit") "* NEXT %? :habit:\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
 	  ))
   (global-set-key (kbd "<f11>") 'org-capture)
 #+END_SRC
@@ -197,15 +197,14 @@
 	org-agenda-compact-blocks t ;; Compact the block agenda view
 	org-use-fast-todo-selection t
 	org-agenda-start-with-entry-text-mode t
-	org-agenda-start-with-log-mode t
 	org-agenda-custom-commands
 	(quote (("n" "Notes/Ideas" tags "NOTE"
 		 ((org-agenda-overriding-header "Notes/Ideas")
 		  (org-tags-match-list-sublevels t)))
-		("h" "Habits" tags-todo "STYLE=\"habit\""
-		 ((org-agenda-overriding-header "Habits")
-		  (org-agenda-sorting-strategy
-		   '(todo-state-down effort-up category-keep))))
+		("h" "Habits" tags-todo "habit"
+		 ((org-agenda-overriding-header "Habits")))
+		("s" "Someday" tags-todo "/SOMEDAY"
+		 ((org-agenda-overriding-header "Someday")))
 		(" " "agenda"
 		 ((agenda "" nil) ;; first element
 		  (tags-todo "/WAITING"
@@ -216,8 +215,7 @@
 			     ((org-agenda-overriding-header "Next")))
 		  (tags-todo "-habit/TODO"
 			     ((org-agenda-overriding-header "Todo")))
-		  (tags-todo "-habit/SOMEDAY"
-			     ((org-agenda-overriding-header "Someday"))))))))
+		  )))))
   (global-set-key (kbd "<f12>") 'org-agenda)
 
 
