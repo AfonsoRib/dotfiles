@@ -86,6 +86,10 @@
   (add-hook 'web-mode-hook (lambda ()
 			     (set (make-local-variable 'company-backends) '(company-web-html company-css))))
 #+end_src
+* Statistics
+#+begin_src emacs-lisp
+(straight-use-package 'ess)
+#+end_src
 * package configs
 ** misc package declarations
 #+BEGIN_SRC emacs-lisp
