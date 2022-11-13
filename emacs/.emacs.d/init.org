@@ -177,12 +177,13 @@
 
   (setq org-todo-keywords
 	(quote ((sequence "TODO(t)" "HABIT(h)" "SOMEDAY(s)" "NEXT(n)" "|" "DONE(d)")
-		(sequence "WAITING(w@/!)" "|" "CANCELLED(c@/!)"))))
+		(sequence "WAITING(w@/!)" "|" "CANCELLED(c@/!)" "REPEAT(r@/!)"))))
 
   (setq org-todo-keyword-faces
 	(quote (("TODO" :foreground "red" :weight bold)
 		("NEXT" :foreground "blue" :weight bold)
 		("DONE" :foreground "forest green" :weight bold)
+		("REPAT" :foreground "forest green" :weight bold)
 		("WAITING" :foreground "orange" :weight bold)
 		("SOMEDAY" :foreground "orange" :weight bold)
 		("CANCELLED" :foreground "forest green" :weight bold))))
@@ -191,52 +192,62 @@
 #+BEGIN_SRC emacs-lisp
   (require 'org-capture)
   (setq org-capture-templates 
-	'(("t" "todo" entry (file+headline "~/org/life.org" "Todo") "* TODO %?\n") ;; Creates a TODO headline in the entry "Todo". If there is a marked region, it will be copied over.
-	  ("d" "someday" entry (file+headline "~/org/life.org" "Todo") "* SOMEDAY %?\n")
-	  ("s" "scheduled" entry (file+headline "~/org/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^T \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
+	'(	  ("t" "Tasks")
+	  ("tt" "todo" entry (file+headline "~/org/life.org" "Todo") "* TODO %?\n") ;; Creates a TODO headline in the entry "Todo". If there is a marked region, it will be copied over.
+	  ("tf" "future/someday" entry (file+headline "~/org/life.org" "Todo") "* SOMEDAY %?\n")
+	  ("th" "Habit" entry (file+headline "~/org/life.org" "Habit") "* NEXT %? :habit:\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+	  ("ts" "scheduled" entry (file+headline "~/org/life.org" "Scheduled") "* TODO %?\n SCHEDULED: %^t \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
+	  ("td" "deadline" entry (file+headline "~/org/life.org" "deadline") "* TODO %?\n DEADLINE: %^t \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
 	  ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n")
 	  ("b" "book" entry (file+headline "~/org/books.org" "refile")  "* %?\n:PROPERTIES:\n:AUTHOR:\n:END:" :empty-lines 1)
-	  ("h" "Habit" entry (file+headline "~/org/life.org" "Habit") "* NEXT %? :habit:\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
+	  ("d" "day" entry (file "~/org/daily.org") "* %(my/today-date)\n** rezar depois de acordar\n<%(my/today-date) 08:00>\n** almoço\n<%(my/today-date) 13:00-14:00>\n** jantar\n<%(my/today-date) 19:00-20:00>\n** rezar antes de dormir\n<%(my/today-date) 22:00>\n%?")
 	  ))
   (global-set-key (kbd "<f11>") 'org-capture)
 #+END_SRC
 ** org-agenda
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files '("~/org/")
-	org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
-	org-agenda-compact-blocks t ;; Compact the block agenda view
-	org-use-fast-todo-selection t
-	org-agenda-start-with-entry-text-mode t
-	org-agenda-custom-commands
-	(quote (("n" "Notes/Ideas" tags "NOTE"
-		 ((org-agenda-overriding-header "Notes/Ideas")
-		  (org-tags-match-list-sublevels t)))
-		("h" "Habits" tags-todo "habit"
-		 ((org-agenda-overriding-header "Habits")))
-		("s" "Someday" tags-todo "/SOMEDAY"
-		 ((org-agenda-overriding-header "Someday")))
-		(" " "agenda"
-		 ((agenda "" nil) ;; first element
-		  (tags-todo "/WAITING"
-			     ((org-agenda-overriding-header "Waiting")))
-		  (tags-todo "habit/-WAITING"
-			     ((org-agenda-overriding-header "habits")))
-		  (tags-todo "-habit/NEXT"
-			     ((org-agenda-overriding-header "Next")))
-		  (tags-todo "-habit/TODO"
-			     ((org-agenda-overriding-header "Todo")))
-		  )))))
-  (global-set-key (kbd "<f12>") 'org-agenda)
+    (setq org-agenda-files '("~/org/")
+	  org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
+	  org-agenda-compact-blocks t ;; Compact the block agenda view
+	  org-use-fast-todo-selection t
+	  ;org-agenda-start-with-entry-text-mode nil
+	  org-agenda-custom-commands
+	  (quote (("n" "Notes/Ideas" tags "NOTE"
+		   ((org-agenda-overriding-header "Notes/Ideas")
+		    (org-tags-match-list-sublevels t)))
+		  ("h" "Habits" tags-todo "habit"
+		   ((org-agenda-overriding-header "Habits")))
+		  ("s" "Someday" tags-todo "/SOMEDAY"
+		   ((org-agenda-overriding-header "Someday")))
+		  (" " "life agenda"
+		   ((agenda "" nil) ;; first element
+		    (tags-todo "/WAITING"
+			       ((org-agenda-overriding-header "Waiting")))
+		    (tags-todo "habit/-WAITING"
+			       ((org-agenda-overriding-header "habits")))
+		    (tags-todo "-habit/NEXT"
+			       ((org-agenda-overriding-header "Next")))
+		    (tags-todo "-habit/TODO"
+			       ((org-agenda-overriding-header "Todo")))
+		    ))
+
+		  ("d" "day agenda" agenda ""
+		   ((org-agenda-span 1)
+		    (org-deadline-warning-days 21)))
+		  )))
+    (global-set-key (kbd "<f12>") 'org-agenda)
 
 
+    (defun my/today-date()
+      (format-time-string "%Y-%m-%d %a" (current-time)))
 
-  (defun org-archive-done-tasks ()
-    (interactive)
-    (org-map-entries
-     (lambda ()
-       (org-archive-subtree)
-       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-     "/DONE" 'tree))
+    (defun org-archive-done-tasks ()
+      (interactive)
+      (org-map-entries
+       (lambda ()
+	 (org-archive-subtree)
+	 (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+       "/DONE" 'tree))
 
 #+END_SRC
 * writting
