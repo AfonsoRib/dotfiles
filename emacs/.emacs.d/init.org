@@ -274,6 +274,19 @@
        "/DONE" 'tree))
 
 #+END_SRC
+** org-project
+#+begin_src emacs-lisp
+  (straight-use-package '(org-project :type git :host github :repo "delehef/org-project"))
+  (setq
+   org-project-prompt-for-project t
+   org-project-todos-per-project t
+   org-project-per-project-file "todos.org"
+   org-project-capture-template "* TODO %?\n%t\n") ;; Ask for a TODO and a date
+
+  (define-key project-prefix-map "t" 'org-project-capture)
+  (define-key project-prefix-map "o" 'org-project-open-todos)
+
+#+end_src
 * writting
 #+begin_src emacs-lisp
 (straight-use-package 'darkroom)
