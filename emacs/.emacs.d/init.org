@@ -1,3 +1,8 @@
+* optimizations
+#+begin_src emacs-lisp
+  (setq gc-cons-threshold 100000000)
+  (setq read-process-output-max (* 1024 1024 3)) ;; 1mb
+#+end_src
 * Cosmetics
 #+BEGIN_SRC emacs-lisp
   (setq custom-safe-themes t)
