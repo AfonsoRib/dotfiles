@@ -196,6 +196,9 @@
 
   (require 'popper-echo)
   (popper-echo-mode +1)
+
+  (straight-use-package 'beacon)
+  (beacon-mode)
 #+end_src
 * org
 ** org-mode
