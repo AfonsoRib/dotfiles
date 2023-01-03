@@ -303,6 +303,29 @@
   (define-key project-prefix-map "o" 'org-project-open-todos)
 
 #+end_src
+** org-pomodoro
+#+begin_src emacs-lisp
+  (straight-use-package 'org-pomodoro)
+  (setq org-pomodoro-short-break-length 20
+	org-pomodoro-long-break-length 30
+	org-pomodoro-length 90
+	org-pomodoro-manual-break t
+	org-pomodoro-audio-player "mpv"
+	org-pomodoro-finished-sound-args "-volume 20"
+	org-pomodoro-long-break-sound-args "-volume 20"
+	org-pomodoro-short-break-sound-args "-volume 20"
+	org-pomodoro-overtime-sound-args "-volume 20"
+	org-pomodoro-ticking-sound-args "-volume 20")
+
+  (add-hook 'org-pomodoro-break-finished-hook
+  (lambda ()
+    (interactive)
+    (point-to-register 1)
+    (org-clock-goto)
+    (org-pomodoro)
+    (register-to-point 1)))
+#+end_src
+#+end_src
 * writting
 #+begin_src emacs-lisp
 (straight-use-package 'darkroom)
