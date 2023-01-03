@@ -167,8 +167,8 @@
   (global-set-key (kbd "C-x 3") (lambda () (interactive)(split-window-horizontally) (other-window 1)))
   (setq isearch-lazy-count t)
   (straight-use-package 'phi-search)
-  (global-set-key (kbd "C-s") 'phi-search)
-  (global-set-key (kbd "C-r") 'phi-search-backward)
+  ;; (global-set-key (kbd "C-s") 'phi-search)
+  ;; (global-set-key (kbd "C-r") 'phi-search-backward)
 
   (straight-use-package 'highlight-indent-guides)
   (setq highlight-indent-guides-method 'character)
