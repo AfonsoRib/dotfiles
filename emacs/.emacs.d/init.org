@@ -209,6 +209,10 @@
   (setq org-todo-repeat-to-state t) ;; repeats habit to state specified in properties
   (setq org-src-tab-acts-natively t) ;; native indentation inside org-mode blocks
 
+  (straight-use-package 'org-bullets)
+  (require 'org-bullets)
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+  
   (setq org-todo-keywords
 	(quote ((sequence "TODO(t)" "HABIT(h)" "SOMEDAY(s)" "NEXT(n)" "|" "DONE(d)")
 		(sequence "WAITING(w@/!)" "|" "CANCELLED(c@/!)" "REPEAT(r@/!)"))))
