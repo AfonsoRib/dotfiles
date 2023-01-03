@@ -58,8 +58,8 @@
   (with-eval-after-load 'company
     (define-key company-active-map (kbd "C-n") 'company-select-next)
     (define-key company-active-map (kbd "C-p") 'company-select-previous))
-  (setq company-idle-delay 0
-	company-minimum-prefix-length 2
+  (setq company-idle-delay 0.3
+	company-minimum-prefix-length 3
 	company-require-match 'never)
   (straight-use-package 'geiser)
   (straight-use-package 'eglot)
