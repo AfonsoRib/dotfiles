@@ -416,7 +416,9 @@
 #+begin_src emacs-lisp
   (straight-use-package 'pdf-tools)
   (pdf-loader-install)
-  ;;(add-hook 'org-mode-hook 'org-pdftools-setup-link)
+  (straight-use-package 'org-pdftools)
+  (require 'org-pdftools)
+  (add-hook 'org-mode-hook 'org-pdftools-setup-link)
 #+end_src
 * RSS
 #+begin_src emacs-lisp
