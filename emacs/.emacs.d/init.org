@@ -325,6 +325,15 @@
     (org-pomodoro)
     (register-to-point 1)))
 #+end_src
+** TODO calendar
+#+begin_src emacs-lisp
+  (straight-use-package 'calfw)
+  (straight-use-package 'calfw-org)
+  (require 'calfw)
+  (require 'calfw-org)
+  (global-set-key (kbd "<f9>")
+		  'cfw:open-org-calendar)
+
 #+end_src
 * writting
 #+begin_src emacs-lisp
