@@ -240,54 +240,72 @@
 	  ("ud" "deadline" entry (file+headline "~/org/university.org" "deadline") "* TODO %?\nDEADLINE: %^t \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
 	  ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n")
 	  ("b" "book" entry (file+headline "~/org/books.org" "refile")  "* %?\n:PROPERTIES:\n:AUTHOR:\n:END:" :empty-lines 1)
-	  ("d" "day" entry (file "~/org/daily.org") "* %(my/today-date)\n** rezar depois de acordar\n<%(my/today-date) 08:00>\n** almoço\n<%(my/today-date) 13:00-14:00>\n** jantar\n<%(my/today-date) 19:00-20:00>\n** rezar antes de dormir\n<%(my/today-date) 22:00>\n%?")
 	  ))
 
   (global-set-key (kbd "<f11>") 'org-capture)
 #+END_SRC
 ** org-agenda
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files '("~/org/")
-	org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
-	org-agenda-compact-blocks t ;; Compact the block agenda view
-	org-use-fast-todo-selection t
-					  ;org-agenda-start-with-entry-text-mode nil
-	org-agenda-custom-commands
-	(quote (("n" "Notes/Ideas" tags "NOTE"
-		 ((org-agenda-overriding-header "Notes/Ideas")
-		  (org-tags-match-list-sublevels t)))
-		("h" "Habits" tags-todo "habit"
-		 ((org-agenda-overriding-header "Habits")))
-		("s" "Someday" tags-todo "/SOMEDAY"
-		 ((org-agenda-overriding-header "Someday")))
-		(" " "life agenda"
-		 ((agenda "" nil) ;; first element
-		  (tags-todo "/WAITING"
-			     ((org-agenda-overriding-header "Waiting")))
-		  (tags-todo "habit/-WAITING"
-			     ((org-agenda-overriding-header "habits")))
-		  (tags-todo "-habit/NEXT"
-			     ((org-agenda-overriding-header "Next")))
-		  (tags-todo "-habit/TODO"
-			     ((org-agenda-overriding-header "Todo")))
-		  ))
+    (setq org-agenda-files '("~/org/")
+	  org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
+	  org-agenda-compact-blocks t ;; Compact the block agenda view
+	  org-use-fast-todo-selection t
+					    ;org-agenda-start-with-entry-text-mode nil
+	  org-agenda-custom-commands
+	  (quote (("n" "Notes/Ideas" tags "NOTE"
+		   ((org-agenda-overriding-header "Notes/Ideas")
+		    (org-tags-match-list-sublevels t)))
+		  ("h" "Habits" tags-todo "habit"
+		   ((org-agenda-overriding-header "Habits")))
+		  ("s" "Someday" tags-todo "/SOMEDAY"
+		   ((org-agenda-overriding-header "Someday")))
+		  (" " "life agenda"
+		   ((agenda "" nil) ;; first element
+		    (tags-todo "/WAITING"
+			       ((org-agenda-overriding-header "Waiting")))
+		    (tags-todo "habit/-WAITING"
+			       ((org-agenda-overriding-header "habits")))
+		    (tags-todo "-habit/NEXT"
+			       ((org-agenda-overriding-header "Next")))
+		    (tags-todo "-habit/TODO"
+			       ((org-agenda-overriding-header "Todo")))
+		    ))
 
-		("d" "day agenda" agenda ""
-		 ((org-agenda-span 1)
-		  (org-deadline-warning-days 21)))
-		)))
-  (global-set-key (kbd "<f12>") 'org-agenda)
+		  ("d" "day agenda" agenda ""
+		   ((org-agenda-span 1)
+		    (org-deadline-warning-days 31)))
+		  )))
+    (global-set-key (kbd "<f12>") 'org-agenda)
 
-  (defun my/today-date()
-    (format-time-string "%Y-%m-%d %a" (current-time)))
+    (defun my/today-date()
+      (format-time-string "%Y-%m-%d %a" (current-time)))
 
-  (defun org-archive-done-tasks ()
-    (interactive)
-    (org-map-entries
-     (lambda ()
-       (org-archive-subtree)
-       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-     "/DONE" 'tree))
+    (defun my/org-time-stamp-inactive-string ()
+     (with-temp-buffer
+	(org-mode)
+	(org-time-stamp-inactive nil nil)
+	(buffer-substring (point-min) (point-max))))
+
+    (defun my/org-archive-done-tasks ()
+      (interactive)
+      (org-map-entries
+       (lambda ()
+	 (org-archive-subtree)
+	 (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+       "/DONE" 'tree))
+
+  (defun my/org-todo-custom-date (&optional arg)
+    "Like org-todo-yesterday, but prompt the user for a date. The time
+  of change will be 23:59 on that day"
+    (interactive "P")
+    (let* ((hour (nth 2 (decode-time
+			 (org-current-time))))
+	   (daysback (- (date-to-day (current-time-string)) (org-time-string-to-absolute (org-read-date))))
+	   (org-extend-today-until (+ 1 (* 24 (- daysback 1)) hour))
+	   (org-use-effective-time t)) ; use the adjusted timestamp for logging
+      (if (eq major-mode 'org-agenda-mode)
+	(org-agenda-todo arg)
+	(org-todo arg))))
 
 #+END_SRC
 ** org-project
