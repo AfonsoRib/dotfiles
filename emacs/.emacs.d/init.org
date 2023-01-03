@@ -107,6 +107,7 @@
    (straight-use-package 'dired-hide-dotfiles)
    (add-hook 'dired-mode-hook 'dired-hide-details-mode)
    (add-hook 'dired-mode-hook 'dired-hide-dotfiles-mode)
+   (setq dired-listing-switches "-lXGh --group-directories-first")
    (setq dired-dwim-target t)
  #+END_SRC
 ** Minibuffer Tools
