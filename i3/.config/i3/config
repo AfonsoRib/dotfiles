@@ -1,4 +1,5 @@
 set $mod Mod4
+set $alt Mod1
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -153,6 +154,7 @@ default_border normal 0
 #smart_borders on
 title_align center
 #for_window [class=".*"] border pixel 1
+for_window [class="floating_window"] floating enable
 
 # Colors
 set $black #222222
@@ -194,8 +196,8 @@ bar {
 # autostart
 #exec start-pulseaudio-x11
 #exec xrandr --output HDMI-1 --auto --left-of eDP-1
-#exec xwallpaper --screen 0 --zoom Pictures/wall.png
-exec xwallpaper --screen 0 --zoom Pictures/wall2.jpg
+exec xwallpaper --screen 0 --zoom Pictures/wall.jpg
+#exec xwallpaper --screen 0 --zoom Pictures/wall2.jpg
 #exec xwallpaper --screen 0 --zoom Pictures/wall3.jpg
 exec dunst
 #exec emacs --daemon
@@ -207,6 +209,11 @@ exec setxkbmap -option "ctrl:swapcaps" pt,ru -option "grp:win_space_toggle"
 # start a terminal
 bindsym $mod+Shift+Return exec st  #-e tmux new -A -s st
 
+# dictionary
+bindsym $mod+Shift+m exec st -c floating_window -e sh -c  'xclip -o -selection clipboard | sdcv | less' # to improve 
+
+
+
 # emacs
 bindsym $mod+Shift+e exec emacsclient -nc -a 'emacs'
 bindsym $mod+Shift+d exec emacsclient -nc -a 'emacs' -e '(dired "~/")'
@@ -215,8 +222,8 @@ bindsym $mod+Shift+s exec emacs-servers
 # screenshot
 bindsym Print exec maim ~/Pictures/screenshot-$(date '+%y%m%d-%H%M-%S').png
 bindsym Shift+Print exec maim -s ~/Pictures/screenshot-cropped$(date '+%y%m%d-%H%M-%S').png
-#bindsym $mod+Print exec maim -s | tesseract -l rus+eng  - - | xclip -selection clipboard
-bindsym $mod+Print exec data="$(date +%s)" && (maim -s ~/aulas/ES/images/"$data".png) && echo ~/aulas/ES/images/"$data".png | xclip -selection clipboard
+bindsym $mod+Print exec maim -s | tesseract -l rus+eng  - - | xclip -selection clipboard
+#bindsym $mod+Print exec data="$(date +%s)" && (maim -s ~/aulas/ES/images/"$data".png) && echo ~/aulas/ES/images/"$data".png | xclip -selection clipboard
 bindsym $mod+Shift+Print exec maim -s | xclip -selection clipboard -t image/png
 
 
