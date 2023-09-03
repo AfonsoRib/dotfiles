@@ -24,22 +24,53 @@
   (setq show-paren-when-point-in-periphery t)
   (setq show-paren-when-point-inside-paren nil)
 
-  (add-hook 'text-mode-hook 'display-line-numbers-mode)
+  ;;(add-hook 'text-mode-hook 'display-line-numbers-mode)
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
   (set-face-font 'default "hack-12")
   (setq default-frame-alist '((font . "hack-12"))) ;; set default font for emacs --daemon / emacsclient
+
+  ;; nano emacs configuration
+  ;; (add-ho)
+
+  (straight-use-package
+   '(nano-emacs :type git :host github :repo "rougier/nano-emacs"))
+
+  ;;(require 'nano)
+  (require 'nano-faces)
+  (require 'nano-theme)
+  (require 'nano-theme-dark)
+  (require 'nano-theme-light)
+
+  (cond
+   ((member "-default" command-line-args) t)
+   ((member "-dark" command-line-args) (nano-theme-set-dark))
+   (t (nano-theme-set-light)))
+  (call-interactively 'nano-refresh-theme)
+
+  ;; Nano default settings (optional)
+  ;;(require 'nano-defaults)
+
+  ;; Nano session saving (optional)
+  ;;(require 'nano-session)
+
+  ;; Nano header & mode lines (optional)
+  (require 'nano-modeline)
+
+  ;; Nano key bindings modification (optional)
+  (require 'nano-bindings)
 #+END_SRC
 * Bakcup Settings
 #+BEGIN_SRC emacs-lisp
-(setq
- backup-by-copying t      ; don't clobber symlinks
- backup-directory-alist '(("." . "~/.cache/emacs-backups/"))    ; don't litter my fs tree
- delete-old-versions t
- kept-new-versions 6
- kept-old-versions 2
- version-control t      ; use versioned backups
- auto-save-default nil)
+  (setq
+   backup-by-copying t      ; don't clobber symlinks
+   backup-directory-alist '(("." . "~/.cache/emacs-backups/"))    ; don't litter my fs tree
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t      ; use versioned backups
+   undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))
+   auto-save-default nil)
 #+END_SRC
 * keybinds
 #+BEGIN_SRC emacs-lisp
@@ -54,7 +85,7 @@
   (with-eval-after-load 'flymake
     (require 'flymake-diagnostic-at-point)
     (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
-  (straight-use-package 'company)
+  (straight-use-package 'company) 
   (with-eval-after-load 'company
     (define-key company-active-map (kbd "C-n") 'company-select-next)
     (define-key company-active-map (kbd "C-p") 'company-select-previous))
@@ -64,6 +95,7 @@
   (straight-use-package 'geiser)
   (straight-use-package 'eglot)
 #+END_SRC
+*** TODO eventually company should be replaced by corfu
 ** languages
 *** Haskell
  #+BEGIN_SRC emacs-lisp
@@ -90,6 +122,12 @@
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
   (add-hook 'web-mode-hook (lambda ()
 			     (set (make-local-variable 'company-backends) '(company-web-html company-css))))
+#+end_src
+** notebooks
+#+begin_src emacs-lisp
+  (straight-use-package 'ein)
+  (straight-use-package 'jupyter)
+  (setq ein:output-area-inlined-images t)
 #+end_src
 * Statistics
 #+begin_src emacs-lisp
@@ -204,7 +242,6 @@
 ** org-mode
 #+BEGIN_SRC emacs-lisp
   (straight-use-package 'org-contrib)
-  (require 'org-habit)
   (add-to-list 'org-modules "org-habit")
   (setq org-todo-repeat-to-state t) ;; repeats habit to state specified in properties
   (setq org-src-tab-acts-natively t) ;; native indentation inside org-mode blocks
@@ -212,7 +249,6 @@
   (straight-use-package 'org-bullets)
   (require 'org-bullets)
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-  
   (setq org-todo-keywords
 	(quote ((sequence "TODO(t)" "HABIT(h)" "SOMEDAY(s)" "NEXT(n)" "|" "DONE(d)")
 		(sequence "WAITING(w@/!)" "|" "CANCELLED(c@/!)" "REPEAT(r@/!)"))))
@@ -243,60 +279,67 @@
 	  ("us" "scheduled" entry (file+headline "~/org/university.org" "Scheduled") "* TODO %?\nSCHEDULED: %^t \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
 	  ("ud" "deadline" entry (file+headline "~/org/university.org" "deadline") "* TODO %?\nDEADLINE: %^t \n") ;; Creates an headline under the entry "Scheduled" and it will ask for a date.
 	  ("n" "notes/ideas" entry (file "~/org/notes.org")  "* %? :NOTE:\n")
-	  ("b" "book" entry (file+headline "~/org/books.org" "refile")  "* %?\n:PROPERTIES:\n:AUTHOR:\n:END:" :empty-lines 1)
+	  ("o" "online" entry (file "~/org/online.org")  "* %? :ONLINE:\n")
 	  ))
 
   (global-set-key (kbd "<f11>") 'org-capture)
 #+END_SRC
 ** org-agenda
 #+BEGIN_SRC emacs-lisp
-    (setq org-agenda-files '("~/org/")
-	  org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
-	  org-agenda-compact-blocks t ;; Compact the block agenda view
-	  org-use-fast-todo-selection t
-					    ;org-agenda-start-with-entry-text-mode nil
-	  org-agenda-custom-commands
-	  (quote (("n" "Notes/Ideas" tags "NOTE"
-		   ((org-agenda-overriding-header "Notes/Ideas")
-		    (org-tags-match-list-sublevels t)))
-		  ("h" "Habits" tags-todo "habit"
-		   ((org-agenda-overriding-header "Habits")))
-		  ("s" "Someday" tags-todo "/SOMEDAY"
-		   ((org-agenda-overriding-header "Someday")))
-		  (" " "life agenda"
-		   ((agenda "" nil) ;; first element
-		    (tags-todo "/WAITING"
-			       ((org-agenda-overriding-header "Waiting")))
-		    (tags-todo "habit/-WAITING"
-			       ((org-agenda-overriding-header "habits")))
-		    (tags-todo "-habit/NEXT"
-			       ((org-agenda-overriding-header "Next")))
-		    (tags-todo "-habit/TODO"
-			       ((org-agenda-overriding-header "Todo")))
-		    ))
+  (setq org-agenda-files (list "~/roam/daily/" "~/org/")
+	org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
+	org-agenda-compact-blocks t ;; Compact the block agenda view
+	org-use-fast-todo-selection t
+					  ;org-agenda-start-with-entry-text-mode nil
+	org-agenda-custom-commands
+	(quote (("n" "Notes/Ideas" tags "NOTE"
+		 ((org-agenda-overriding-header "Notes/Ideas")
+		  (org-tags-match-list-sublevels t)))
+		("o" "To Do Online" tags "ONLINE"
+		 ((org-agenda-overriding-header "To Do Online")
+		  (org-tags-match-list-sublevels t)))
+		("h" "Habits" tags-todo "habit"
+		 ((org-agenda-overriding-header "Habits")))
+		("s" "Someday" tags-todo "/SOMEDAY"
+		 ((org-agenda-overriding-header "Someday")))
+		(" " "life agenda"
+		 ((agenda "" nil) ;; first element
+		  (tags-todo "/WAITING"
+			     ((org-agenda-overriding-header "Waiting")))
+		  (tags-todo "habit/-WAITING"
+			     ((org-agenda-overriding-header "habits")))
+		  (tags-todo "-habit/NEXT"
+			     ((org-agenda-overriding-header "Next")))
+		  (tags-todo "-habit/TODO"
+			     ((org-agenda-overriding-header "Todo")))
+		  ))
 
-		  ("d" "day agenda" agenda ""
-		   ((org-agenda-span 1)
-		    (org-deadline-warning-days 31)))
-		  )))
-    (global-set-key (kbd "<f12>") 'org-agenda)
+		("d" "day agenda" 
+		 ((agenda "" ((org-agenda-span 1)
+			      (org-deadline-warning-days 31)))
+		  (tags "reminder"
+			((org-agenda-overriding-header "Reminders"))))
 
-    (defun my/today-date()
-      (format-time-string "%Y-%m-%d %a" (current-time)))
+		 )
+		)))
+  (global-set-key (kbd "<f12>") 'org-agenda)
 
-    (defun my/org-time-stamp-inactive-string ()
-     (with-temp-buffer
-	(org-mode)
-	(org-time-stamp-inactive nil nil)
-	(buffer-substring (point-min) (point-max))))
+  (defun my/today-date()
+    (format-time-string "%Y-%m-%d %a" (current-time)))
 
-    (defun my/org-archive-done-tasks ()
-      (interactive)
-      (org-map-entries
-       (lambda ()
-	 (org-archive-subtree)
-	 (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-       "/DONE" 'tree))
+  (defun my/org-time-stamp-inactive-string ()
+    (with-temp-buffer
+      (org-mode)
+      (org-time-stamp-inactive nil nil)
+      (buffer-substring (point-min) (point-max))))
+
+  (defun my/org-archive-done-tasks ()
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+     "/DONE" 'tree))
 
   (defun my/org-todo-custom-date (&optional arg)
     "Like org-todo-yesterday, but prompt the user for a date. The time
@@ -308,46 +351,53 @@
 	   (org-extend-today-until (+ 1 (* 24 (- daysback 1)) hour))
 	   (org-use-effective-time t)) ; use the adjusted timestamp for logging
       (if (eq major-mode 'org-agenda-mode)
-	(org-agenda-todo arg)
+	  (org-agenda-todo arg)
 	(org-todo arg))))
 
 #+END_SRC
 ** org-roam
 #+begin_src emacs-lisp
-  (straight-use-package 'org-roam)
-  (straight-use-package 'consult-org-roam)
-  (setq org-roam-directory "~/roam")
-  (setq org-roam-v2-ack t)
-  (setq org-roam-completion-everywhere t)
+  ;; (straight-use-package 'org-roam)
+  ;; (straight-use-package 'consult-org-roam)
+  ;; (setq org-roam-directory "~/roam")
+  ;; (setq org-roam-v2-ack t)
+  ;; (setq org-roam-completion-everywhere t)
 
-  (require 'org-roam)
-  (org-roam-setup)
+  ;; (require 'org-roam)
+  ;; (require 'org-roam-dailies)
+  ;; (org-roam-setup)
 
-  (global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
-  (global-set-key (kbd "C-c n f") 'org-roam-node-find)
-  (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
-  (global-set-key (kbd "C-c n t") 'org-roam-tag-add)
-  (global-set-key (kbd "C-c n a") 'org-roam-alias-add)
-  (define-key org-mode-map (kbd "C-M-i") 'completion-at-point)
+  ;; (global-set-key (kbd "C-c n d") 'org-roam-dailies-map)
+  ;; (global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
+  ;; (global-set-key (kbd "C-c n f") 'org-roam-node-find)
+  ;; (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
+  ;; (global-set-key (kbd "C-c n t") 'org-roam-tag-add)
+  ;; (global-set-key (kbd "C-c n a") 'org-roam-alias-add)
+  ;; (define-key org-mode-map (kbd "C-M-i") 'completion-at-point)
 
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:20}" 'face 'org-tag)))
+  ;; (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:20}" 'face 'org-tag)))
+
+  ;; ;; Bind this to C-c n I
+  ;; (defun org-roam-node-insert-immediate (arg &rest args)
+  ;;   (interactive "P")
+  ;;   (let ((args (cons arg args))
+  ;; 	(org-roam-capture-templates (list (append (car org-roam-capture-templates)
+  ;; 						  '(:immediate-finish t)))))
+  ;;     (apply #'org-roam-node-insert args)))
+  ;; (global-set-key (kbd "C-c n I") 'org-roam-node-insert-immediate)
 #+end_src
 *** org roam capture
 #+begin_src emacs-lisp
-  (setq org-roam-capture-templates
-	'(("d" "default" plain
-	   "%?"
-	   :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
-	   :unnarrowed t)
-	  ("b" "book notes" plain
-	   "\n* Source\n\nAuthor: %^{Author}\nTitle: ${title}\nYear: %^{Year}\n\n* notes\n\n%?"
-	   :if-new (file+head "books/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
-	   :unnarrowed t)
-	  ("a" "notas das aulas" plain
-	   "#+filetags: %^g\n%?"
-	   :if-new (file+head "aulas/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
-	   :unnarrowed t)
-	  ))
+  ;; (setq org-roam-capture-templates
+  ;;       '(("d" "default" plain
+  ;; 	 "%?"
+  ;; 	 :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+  ;; 	 :unnarrowed t)
+  ;; 	("b" "book notes" plain
+  ;; 	 "\n* Source\n\nAuthor: %^{Author}\nTitle: ${title}\nYear: %^{Year}\n\n* notes\n\n%?"
+  ;; 	 :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+  ;; 	 :unnarrowed t)
+  ;; 	))
 #+end_src
 ** org-project
 #+begin_src emacs-lisp
@@ -362,28 +412,6 @@
   (define-key project-prefix-map "o" 'org-project-open-todos)
 
 #+end_src
-** org-pomodoro
-#+begin_src emacs-lisp
-  (straight-use-package 'org-pomodoro)
-  (setq org-pomodoro-short-break-length 20
-	org-pomodoro-long-break-length 30
-	org-pomodoro-length 90
-	org-pomodoro-manual-break t
-	org-pomodoro-audio-player "mpv"
-	org-pomodoro-finished-sound-args "-volume 20"
-	org-pomodoro-long-break-sound-args "-volume 20"
-	org-pomodoro-short-break-sound-args "-volume 20"
-	org-pomodoro-overtime-sound-args "-volume 20"
-	org-pomodoro-ticking-sound-args "-volume 20")
-
-  (add-hook 'org-pomodoro-break-finished-hook
-  (lambda ()
-    (interactive)
-    (point-to-register 1)
-    (org-clock-goto)
-    (org-pomodoro)
-    (register-to-point 1)))
-#+end_src
 ** TODO calendar
 #+begin_src emacs-lisp
   (straight-use-package 'calfw)
@@ -396,7 +424,7 @@
 #+end_src
 * writting
 #+begin_src emacs-lisp
-(straight-use-package 'darkroom)
+(straight-use-package 'olivetti)
 #+end_src
 ** Latex
 #+BEGIN_SRC emacs-lisp
@@ -434,7 +462,17 @@
     (interactive)
     (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
       (message "Opening with mpv..." )
-      (setq quality-arg "--ytdl-format=bestvideo[height<=?720][fps<=?30][vcodec!=?vp9]+bestaudio/best")
+      (setq quality-arg "--ytdl-format=bestvideo[height<=?720]+bestaudio/best")
       (start-process "elfeed-mpv" nil "mpv" quality-arg (elfeed-entry-link entry))))
+
+  (with-eval-after-load 'elfeed
+  (define-key elfeed-search-mode-map "v" 'elfeed-play-with-mpv))
   ;;TODO Download videos
+  (defun my-elfeed-dl-videos ()
+  "Show the list of feeds in Elfeed with a specific tag."
+  (interactive)
+  (elfeed-search-set-filter "+unread +videos")
+  (mark-whole-buffer)
+  (let ((links (mapconcat 'identity (mapcar #'elfeed-entry-link (elfeed-search-selected))  " ")))
+    (async-shell-command (concat "yt-dlp "   "-N 10 -o '~/RSS/Videos/%(uploader)s/%(title)s.%(ext)s' " links)))) 
 #+end_src
