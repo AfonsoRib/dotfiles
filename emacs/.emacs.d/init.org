@@ -1,3 +1,14 @@
+* package manager
+Initialization of the package manager to install everything needed below.
+
+Quelpa installs packages on the fly without going through a
+repository. Packages come directly from source
+
+#+begin_src emacs-lisp
+  (package-initialize)
+  ;; (package-refresh-contents)
+  (package-install 'quelpa)
+#+end_src
 * optimizations
 #+begin_src emacs-lisp
   (setq gc-cons-threshold 100000000)
@@ -5,60 +16,68 @@
 #+end_src
 * Cosmetics
 #+BEGIN_SRC emacs-lisp
-  (setq custom-safe-themes t)
+    (setq custom-safe-themes t)
 
-  (straight-use-package 'modus-themes)
-  (load-theme 'modus-operandi t)
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
+    (package-install 'modus-themes)
+    (load-theme 'modus-operandi t)
+    (menu-bar-mode -1)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)
 
-  (defun my/disable-scroll-bars (frame)
-    (modify-frame-parameters frame
-			     '((vertical-scroll-bars . nil)
-			       (horizontal-scroll-bars . nil))))
-  (add-hook 'after-make-frame-functions 'my/disable-scroll-bars) 
+    (defun my/disable-scroll-bars (frame)
+      (modify-frame-parameters frame
+			       '((vertical-scroll-bars . nil)
+				 (horizontal-scroll-bars . nil))))
+    (add-hook 'after-make-frame-functions 'my/disable-scroll-bars) 
 
-  (show-paren-mode 1)
-  (setq show-paren-style 'expression)
-  (setq show-paren-when-point-in-periphery t)
-  (setq show-paren-when-point-inside-paren nil)
+    (show-paren-mode 1)
+    (setq show-paren-style 'expression)
+    (setq show-paren-when-point-in-periphery t)
+    (setq show-paren-when-point-inside-paren nil)
 
-  ;;(add-hook 'text-mode-hook 'display-line-numbers-mode)
-  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+    ;;(add-hook 'text-mode-hook 'display-line-numbers-mode)
+    (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
-  (set-face-font 'default "hack-12")
-  (setq default-frame-alist '((font . "hack-12"))) ;; set default font for emacs --daemon / emacsclient
+    (set-face-font 'default "DejaVu Sans Mono-14")
+    (setq default-frame-alist '((font . "DejaVu Sans Mono-14"))) ;; set default font for emacs --daemon / emacsclient
 
-  ;; nano emacs configuration
-  ;; (add-ho)
+    (setq-default truncate-lines t)
 
-  (straight-use-package
-   '(nano-emacs :type git :host github :repo "rougier/nano-emacs"))
+    ;; TODO
+    ;; format title frame title name
+    ;; ` - back quote allows you quote a list and eval certain elemetns
+    ;; , - tell which expression to be evaluated
+    ;; (modify-frame-parameters
+    ;;  nil
+    ;;  `((name . ,(concat "Emacs - " (buffer-name)))))
 
-  ;;(require 'nano)
-  (require 'nano-faces)
-  (require 'nano-theme)
-  (require 'nano-theme-dark)
-  (require 'nano-theme-light)
+    ;; nano emacs configuration
+  ;;   (straight-use-package
+  ;;    '(nano-emacs :type git :host github :repo "rougier/nano-emacs"))
 
-  (cond
-   ((member "-default" command-line-args) t)
-   ((member "-dark" command-line-args) (nano-theme-set-dark))
-   (t (nano-theme-set-light)))
-  (call-interactively 'nano-refresh-theme)
+  ;; ;;  (require 'nano)
+  ;;   (require 'nano-faces)
+  ;;   (require 'nano-theme)
+  ;;   (require 'nano-theme-dark)
+  ;;   (require 'nano-theme-light)
 
-  ;; Nano default settings (optional)
-  ;;(require 'nano-defaults)
+  ;;   (cond
+  ;;    ((member "-default" command-line-args) t)
+  ;;    ((member "-dark" command-line-args) (nano-theme-set-dark))
+  ;;    (t (nano-theme-set-light)))
+  ;;   (call-interactively 'nano-refresh-theme)
 
-  ;; Nano session saving (optional)
-  ;;(require 'nano-session)
+  ;;   ;; Nano default settings (optional)
+  ;;   ;;(require 'nano-defaults)		;
 
-  ;; Nano header & mode lines (optional)
-  (require 'nano-modeline)
+  ;;   ;; Nano session saving (optional)
+  ;;   (require 'nano-session)
 
-  ;; Nano key bindings modification (optional)
-  (require 'nano-bindings)
+  ;;   ;; Nano header & mode lines (optional)
+  ;;   (require 'nano-modeline)
+
+    ;; Nano key bindings modification (optional)
+    ;; (require 'nano-bindings)
 #+END_SRC
 * Bakcup Settings
 #+BEGIN_SRC emacs-lisp
@@ -75,97 +94,131 @@
 * keybinds
 #+BEGIN_SRC emacs-lisp
   (global-unset-key "\C-z")
+  (global-unset-key "\C-t")
+  (global-set-key (kbd "M-a") 'backward-paragraph)
+  (global-set-key (kbd "M-e") 'forward-paragraph)
+  (global-set-key (kbd "M-e") 'forward-paragraph)
+  (global-set-key (kbd "C-t") 'tab-prefix-map)
+
 #+END_SRC
 * Programming
 ** ide features
 #+BEGIN_SRC emacs-lisp
   (require 'flymake)
-  (straight-use-package 'flymake)
-  (straight-use-package 'flymake-diagnostic-at-point)
+  (package-install 'flymake)
+  (package-install 'flymake-diagnostic-at-point)
   (with-eval-after-load 'flymake
     (require 'flymake-diagnostic-at-point)
     (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
-  (straight-use-package 'company) 
+  (package-install 'company) 
   (with-eval-after-load 'company
     (define-key company-active-map (kbd "C-n") 'company-select-next)
     (define-key company-active-map (kbd "C-p") 'company-select-previous))
   (setq company-idle-delay 0.3
-	company-minimum-prefix-length 3
+	company-minimum-prefix-length 0
 	company-require-match 'never)
-  (straight-use-package 'geiser)
-  (straight-use-package 'eglot)
+
+  (package-install 'company-jedi)
+  (add-hook 'python-mode-hook (lambda () (add-to-list 'company-backends 'company-jedi)))
+  (package-install 'geiser)
+  (package-install 'eglot)
 #+END_SRC
+*** copilot
+#+begin_src emacs-lisp
+  (quelpa '(copilot :fetcher github :repo "zerolfx/copilot.el" :files ("dist" "*.el")))
+  (require 'copilot)
+  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+#+end_src
 *** TODO eventually company should be replaced by corfu
 ** languages
 *** Haskell
  #+BEGIN_SRC emacs-lisp
-   (straight-use-package 'haskell-mode)
+   (package-install 'haskell-mode)
  #+END_SRC
 *** Common Lisp
  #+BEGIN_SRC emacs-lisp
-   (straight-use-package 'slime)
+   (package-install 'slime)
    (setq inferior-lisp-program "sbcl")
  #+END_SRC
 *** nix
 #+begin_src emacs-lisp
-    (straight-use-package 'nix-mode)
+    (package-install 'nix-mode)
 #+end_src
 *** ocaml 
 #+begin_src emacs-lisp
-(straight-use-package 'tuareg)
+(package-install 'tuareg)
 #+end_src
 *** web-dev
 #+begin_src emacs-lisp 
-  (straight-use-package 'web-mode)
-  (straight-use-package 'company-web)
+  (package-install 'web-mode)
+  (package-install 'company-web)
   (require 'company-web-html)
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
   (add-hook 'web-mode-hook (lambda ()
 			     (set (make-local-variable 'company-backends) '(company-web-html company-css))))
 #+end_src
+*** clojure
+#+begin_src emacs-lisp
+  (package-install 'clojure-mode)
+#+end_src
 ** notebooks
 #+begin_src emacs-lisp
-  (straight-use-package 'ein)
-  (straight-use-package 'jupyter)
+  (package-install 'ein)
+  (package-install 'jupyter)
   (setq ein:output-area-inlined-images t)
 #+end_src
+** documentation
+#+begin_src emacs-lisp
+  (package-install 'devdocs)
+#+end_src 
 * Statistics
 #+begin_src emacs-lisp
-(straight-use-package 'ess)
+(package-install 'ess)
 #+end_src
 * package configs
 ** misc package declarations
 #+BEGIN_SRC emacs-lisp
-  (straight-use-package 'hydra)
-  (straight-use-package 'magit)
+  (package-install 'hydra)
+  (package-install 'magit)
  #+END_SRC
 ** Dired
  #+BEGIN_SRC emacs-lisp
    (require 'dired)
-   (straight-use-package 'dired-hide-dotfiles)
+   (package-install 'dired-hide-dotfiles)
    (add-hook 'dired-mode-hook 'dired-hide-details-mode)
    (add-hook 'dired-mode-hook 'dired-hide-dotfiles-mode)
    (setq dired-listing-switches "-lXGh --group-directories-first")
    (setq dired-dwim-target t)
+
+   ;; (straight-use-package 'dired+)
+   ;; (setq diredp-font-lock-glyphs nil)
+   ;; (setq diredp-font-lock-keywords nil)
+   ;; (setq diredp-font-lock-keywords-1 nil)
+   ;; (setq diredp-font-lock-keywords-2 nil)
+   ;; (setq diredp-font-lock-keywords-3 nil)
+   ;; (setq diredp-font-lock-keywords-4 nil)
+   ;; (eval-after-load "dired+"
+   ;;   '(define-key dired-mode-map (kbd "I") 'diredp-insert-subdirs-recursive))
  #+END_SRC
 ** Minibuffer Tools
     #+begin_src emacs-lisp
-      (straight-use-package 'vertico)
-      (straight-use-package 'orderless)
-      (straight-use-package 'marginalia)
-      (straight-use-package 'consult)
-      (straight-use-package 'embark)
+      (package-install 'vertico)
+      (package-install 'orderless)
+      (package-install 'marginalia)
+      (package-install 'consult)
+      (package-install 'embark)
       (marginalia-mode)
       (vertico-mode)
       (setq completion-styles '(orderless))
-      (straight-use-package 'which-key)
+      (package-install 'which-key)
       (which-key-mode t)
       (setq which-key-idle-delay 1.0)
     #+end_src
 ** Text editing
    #+BEGIN_SRC emacs-lisp
      (electric-pair-mode 1)
-     (straight-use-package 'multiple-cursors)
+     (package-install 'multiple-cursors)
      (global-set-key (kbd "C-c c")
 		     (defhydra cqql-multiple-cursors-hydra (:hint nil)
 		       "
@@ -184,47 +237,51 @@
 		       ("M-p" mc/unmark-previous-like-this)
 		       ("q" nil)))
 
-     (straight-use-package 'yasnippet)
-     (straight-use-package 'yasnippet-snippets)
+     (package-install 'yasnippet)
+     ;;(package-install 'yasnippet-snippets)
 
-     (straight-use-package 'expand-region)
+     (package-install 'expand-region)
      (global-set-key (kbd "C-c e") 'er/expand-region)
 
-     (straight-use-package 'visual-fill-column)
-     (straight-use-package 'undo-tree)
+     (package-install 'visual-fill-column)
+     (package-install 'undo-tree)
      (global-undo-tree-mode)
    #+END_SRC
 * navigation
 #+begin_src emacs-lisp
-  (straight-use-package 'ace-window)
+  (package-install 'ace-window)
+  ;;(setq aw-scope 'visible)
   (setq aw-scope 'frame)
   (global-set-key (kbd "C-x o") 'ace-window)
+  (global-set-key (kbd "C-s-e") 'make-frame-command)
+  (global-set-key (kbd "C-x 3") 'ignore)
+  (global-set-key (kbd "C-x 2") 'ignore)
 
   (winner-mode)
   (global-set-key (kbd "C-x 2") (lambda () (interactive)(split-window-vertically) (other-window 1)))
   (global-set-key (kbd "C-x 3") (lambda () (interactive)(split-window-horizontally) (other-window 1)))
   (setq isearch-lazy-count t)
-  (straight-use-package 'phi-search)
+  (package-install 'phi-search)
   ;; (global-set-key (kbd "C-s") 'phi-search)
   ;; (global-set-key (kbd "C-r") 'phi-search-backward)
 
-  (straight-use-package 'highlight-indent-guides)
+  (package-install 'highlight-indent-guides)
   (setq highlight-indent-guides-method 'character)
 
-  (straight-use-package 'bufler)
-  (global-set-key (kbd "C-x b") 'bufler-switch-buffer)
-  (global-set-key (kbd "C-x C-b") 'bufler-list)
+  ;; (package-install 'bufler)
+  ;; (global-set-key (kbd "C-x b") 'bufler-switch-buffer)
+  ;; (global-set-key (kbd "C-x C-b") 'bufler-list)
 
-  (straight-use-package 'popper)
+  (package-install 'popper)
   (setq popper-reference-buffers
 	'("\\*Messages\\*"
 	  "Output\\*$"
 	  "\\*Async Shell Command\\*"
 	  help-mode
 	  compilation-mode
-	  shell-mode
+	  ;;shell-mode
 	  "^\\*eshell.*\\*$" eshell-mode ;eshell as a popup
-	  "^\\*shell.*\\*$"  shell-mode  ;shell as a popup
+	  ;;"^\\*shell.*\\*$"  shell-mode  ;shell as a popup
 	  "^\\*term.*\\*$"   term-mode   ;term as a popup
 	  "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
 	  ))
@@ -235,18 +292,29 @@
   (require 'popper-echo)
   (popper-echo-mode +1)
 
-  (straight-use-package 'beacon)
-  (beacon-mode)
+  ;; (package-install 'beacon)
+  ;; (beacon-mode)
 #+end_src
+* quality of life
+#+begin_src emacs-lisp
+(defun my/insert-relative-file-path ()
+  "Prompt user to choose a file and insert its relative path into the buffer."
+  (interactive)
+  (let ((chosen-file (read-file-name "Choose a file: ")))
+    (if (file-relative-name chosen-file default-directory)
+        (insert (file-relative-name chosen-file default-directory))
+      (message "File is not within the current directory"))))
+#+end_src_
 * org
 ** org-mode
 #+BEGIN_SRC emacs-lisp
-  (straight-use-package 'org-contrib)
-  (add-to-list 'org-modules "org-habit")
+  (package-install 'org-contrib)
+  (require 'org-tempo)
+  ;; (add-to-list 'org-modules "org-habit")
   (setq org-todo-repeat-to-state t) ;; repeats habit to state specified in properties
   (setq org-src-tab-acts-natively t) ;; native indentation inside org-mode blocks
 
-  (straight-use-package 'org-bullets)
+  (package-install 'org-bullets)
   (require 'org-bullets)
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
   (setq org-todo-keywords
@@ -286,7 +354,7 @@
 #+END_SRC
 ** org-agenda
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (list "~/roam/daily/" "~/org/")
+  (setq org-agenda-files (list "~/roam/daily/" "~/org/" "~/org/leitner")
 	org-agenda-dim-blocked-tasks nil ;; Do not dim blocked tasks
 	org-agenda-compact-blocks t ;; Compact the block agenda view
 	org-use-fast-todo-selection t
@@ -357,8 +425,8 @@
 #+END_SRC
 ** org-roam
 #+begin_src emacs-lisp
-  ;; (straight-use-package 'org-roam)
-  ;; (straight-use-package 'consult-org-roam)
+  ;; (package-install 'org-roam)
+  ;; (package-install 'consult-org-roam)
   ;; (setq org-roam-directory "~/roam")
   ;; (setq org-roam-v2-ack t)
   ;; (setq org-roam-completion-everywhere t)
@@ -401,21 +469,28 @@
 #+end_src
 ** org-project
 #+begin_src emacs-lisp
-  (straight-use-package '(org-project :type git :host github :repo "delehef/org-project"))
-  (setq
-   org-project-prompt-for-project t
-   org-project-todos-per-project t
-   org-project-per-project-file "todos.org"
-   org-project-capture-template "* TODO %?\n") ;; Ask for a TODO and a date
+  ;; (straight-use-package '(org-project :type git :host github :repo "delehef/org-project"))
+  ;; (setq
+  ;;  org-project-prompt-for-project t
+  ;;  org-project-todos-per-project t
+  ;;  org-project-per-project-file "todos.org"
+  ;;  org-project-capture-template "* TODO %?\n") ;; Ask for a TODO and a date
 
-  (define-key project-prefix-map "t" 'org-project-capture)
-  (define-key project-prefix-map "o" 'org-project-open-todos)
+  ;; (define-key project-prefix-map "t" 'org-project-capture)
+  ;; (define-key project-prefix-map "o" 'org-project-open-todos)
+
+  ;; ;; Find project
+  ;; root files over CVS
+  (package-install 'project-rootfile)
+  (require 'project-rootfile)
+  (add-to-list 'project-find-functions #'project-rootfile-try-detect)
+  (add-to-list 'project-rootfile-list ".project.el")
 
 #+end_src
 ** TODO calendar
 #+begin_src emacs-lisp
-  (straight-use-package 'calfw)
-  (straight-use-package 'calfw-org)
+  (package-install 'calfw)
+  (package-install 'calfw-org)
   (require 'calfw)
   (require 'calfw-org)
   (global-set-key (kbd "<f9>")
@@ -424,15 +499,15 @@
 #+end_src
 * writting
 #+begin_src emacs-lisp
-(straight-use-package 'olivetti)
+(package-install 'olivetti)
 #+end_src
 ** Latex
 #+BEGIN_SRC emacs-lisp
 #+END_SRC
 ** markdown
 #+begin_src emacs-lisp
-  (straight-use-package 'markdown-mode)
-  (straight-use-package 'poly-R)
+  (package-install 'markdown-mode)
+  (package-install 'poly-R)
   (add-to-list 'auto-mode-alist
              '("\\.[rR]md\\'" . poly-gfm+r-mode))
 #+end_src
@@ -442,17 +517,17 @@
 #+END_SRC
 ** pdf
 #+begin_src emacs-lisp
-  (straight-use-package 'pdf-tools)
+  (package-install 'pdf-tools)
   (pdf-loader-install)
-  (straight-use-package 'org-pdftools)
+  (package-install 'org-pdftools)
   (require 'org-pdftools)
   (add-hook 'org-mode-hook 'org-pdftools-setup-link)
 #+end_src
 * RSS
 #+begin_src emacs-lisp
-  (straight-use-package 'org)
-  (straight-use-package 'elfeed)
-  (straight-use-package 'elfeed-org)
+  (package-install 'org)
+  (package-install 'elfeed)
+  (package-install 'elfeed-org)
   (require 'elfeed-org)
   (eval-after-load "org" '(elfeed-org))
   (setq rmh-elfeed-org-files (list "~/org/elfeed.org"))
