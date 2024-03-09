@@ -6,11 +6,7 @@ set $alt Mod1
 
 font pango:DejaVuSans Mono, Font Awesome 10
 
-# The combination of xss-lock, nm-applet and pactl is a popular choice, so
-# they are included here as an example. Modify as you see fit.
-# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
-# screen before suspend. Use loginctl lock-session to lock your screen.
-exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock -c '#333333' --nofork
+exec --no-startup-id xss-lock --transfer-sleep-lock -- slock
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -19,19 +15,19 @@ floating_modifier $mod
 bindsym $mod+Shift+q kill
 
 # start rofi (a program launcher)
-bindsym $mod+d exec dmenu_run -l 5
+bindsym $mod+d exec dmenu_run 
 
-# change focus
-bindsym $mod+b focus left
-bindsym $mod+n focus down
-bindsym $mod+p focus up
-bindsym $mod+f focus right
+# # change focus
+# bindsym $mod+b focus left
+# bindsym $mod+n focus down
+# bindsym $mod+p focus up
+# bindsym $mod+f focus right
 
-# alternatively, you can use the cursor keys:
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
+# # alternatively, you can use the cursor keys:
+# bindsym $mod+Left focus left
+# bindsym $mod+Down focus down
+# bindsym $mod+Up focus up
+# bindsym $mod+Right focus right
 
 # move focused window
 bindsym $mod+Shift+b move left
@@ -82,7 +78,6 @@ set $ws6 "6"
 set $ws7 "7"
 set $ws8 "8"
 set $ws9 "9"
-set $ws10 "10"
 
 # default workspace layout
 workspace_layout tabbed
@@ -122,15 +117,10 @@ bindsym $mod+Shift+c exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 mode "resize" {
         # These bindings trigger as soon as you enter the resize mode
 
-        # Pressing left will shrink the window’s width.
-        # Pressing right will grow the window’s width.
-        # Pressing up will shrink the window’s height.
-        # Pressing down will grow the window’s height.
-        bindsym b resize shrink width 10 px or 10 ppt
-        bindsym n resize grow height 10 px or 10 ppt
-        bindsym p resize shrink height 10 px or 10 ppt
-        bindsym f resize grow width 10 px or 10 ppt
-
+	bindsym s resize shrink width 10 px or 10 ppt
+        bindsym Shift+s resize shrink height 10 px or 10 ppt
+        bindsym g resize grow width 10 px or 10 ppt
+	bindsym Shift+g resize grow height 10 px or 10 ppt
         # same bindings, but for the arrow keys
         bindsym Left resize shrink width 10 px or 10 ppt
         bindsym Down resize grow height 10 px or 10 ppt
@@ -148,88 +138,52 @@ bindsym $mod+r mode "resize"
 # gaps
 #gaps inner 10
 #gaps outer 10
-hide_edge_borders both
-default_floating_border normal 0
-default_border normal 0
+#hide_edge_borders both
+#default_floating_border normal 0
+#default_border normal 0
 #smart_borders on
-title_align center
+#title_align center
 #for_window [class=".*"] border pixel 1
 for_window [class="floating_window"] floating enable
 
-# Colors
-set $black #222222
-set $white #ffffff
-set $black_2 #5f676a
-set $white_2 #888888
-set $red #900000
-set $dark #0c0c0c
-set $blue #285577
-
-# class                 border   backgr.    text          indicator    child_border
-client.focused          $white   $white     $black        $white       $black
-client.focused_inactive $black_2 $black_2   $white        $black       $black_2
-client.unfocused        $black   $black     $white_2      $black       $black 
-client.urgent           $red     $red       $white        $red         $red   
-client.placeholder      $dark    $dark      $white        $black       $dark  
-
-
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
-
 bar {
         status_command i3blocks
 	position top
-	workspace_min_width 20
 	font pango:DejaVuSans Mono,Font Awesome 5 Free 10
-	colors {
-	        background $black 
-       		statusline $white 
-
-	        focused_workspace  $white    $white    $dark
-        	active_workspace   $black_2  $black_2  $white  
-        	inactive_workspace $black    $black    $white_2
-        	urgent_workspace   $red      $red      $white 
-		
-		}
 }
 
 # autostart
-#exec start-pulseaudio-x11
-#exec xrandr --output HDMI-1 --auto --left-of eDP-1
-exec xwallpaper --screen 0 --zoom Pictures/wall.jpg
-#exec xwallpaper --screen 0 --zoom Pictures/wall2.jpg
-#exec xwallpaper --screen 0 --zoom Pictures/wall3.jpg
 exec dunst
-#exec emacs --daemon
-#exec setxkbmap -option "ctrl:swapcaps" pt
 exec setxkbmap -option "ctrl:swapcaps" pt,ru -option "grp:win_space_toggle"
 
 # My Keybinds
-
+bindsym $mod+o exec i3-easyfocus
 # start a terminal
 bindsym $mod+Shift+Return exec st  #-e tmux new -A -s st
-
 # dictionary
 bindsym $mod+Shift+m exec st -c floating_window -e sh -c  'xclip -o -selection clipboard | sdcv | less' # to improve 
 
-
-
 # emacs
-bindsym $mod+Shift+e exec emacsclient -nc -a 'emacs'
-bindsym $mod+Shift+d exec emacsclient -nc -a 'emacs' -e '(dired "~/")'
+bindsym $mod+Shift+e exec emacsclient -c -a 'emacs'
+bindsym $mod+Shift+d exec emacsclient -c -a 'emacs' -e '(dired "~/")'
 bindsym $mod+Shift+s exec emacs-servers
 
-# screenshot
+# screenshot (incorporate all in one command)
 bindsym Print exec maim ~/Pictures/screenshot-$(date '+%y%m%d-%H%M-%S').png
 bindsym Shift+Print exec maim -s ~/Pictures/screenshot-cropped$(date '+%y%m%d-%H%M-%S').png
-bindsym $mod+Print exec maim -s | tesseract -l rus+eng  - - | xclip -selection clipboard
+#bindsym $mod+Print exec maim -s | tesseract -l rus+eng  - - | xclip -selection clipboard
+#bindsym $mod+Print exec maim -s | tesseract -l rus+eng - - | tee "~/Pictures/$(date '+%Y%m%d%H%M%S').txt" > /dev/null
+bindsym $mod+Print exec maim -s ~/Pictures/russian/15/screenshot-cropped$(date '+%y%m%d-%H%M-%S').png
+#bindsym $mod+Print exec maim -s | tesseract -l eng  - - | xclip -selection clipboard
 #bindsym $mod+Print exec data="$(date +%s)" && (maim -s ~/aulas/ES/images/"$data".png) && echo ~/aulas/ES/images/"$data".png | xclip -selection clipboard
 bindsym $mod+Shift+Print exec maim -s | xclip -selection clipboard -t image/png
 
 
 # backlight control
-bindsym XF86MonBrightnessUp exec light -A 5
-bindsym XF86MonBrightnessDown exec light -U 5
+bindsym XF86MonBrightnessUp exec brightnessctl s 1%+
+bindsym XF86MonBrightnessDown exec brightnessctl s 1%-
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status

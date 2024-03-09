@@ -1,5 +1,5 @@
 # Get the aliases and functions
-[ -f $HOME/.bashrc ] && . $HOME/.bashrc
+#[ -f $HOME/.bashrc ] && . $HOME/.bashrc
 
 #default programs
 export EDITOR="emacsclient -nc -a 'emacs'"
@@ -27,7 +27,9 @@ export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
 export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
 export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
 export STARDICT_DATA_DIR="/home/afonso/stardict/dic"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
+export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+PATH="$PATH:$HOME/.local/bin:$HOME/bin:$HOME/flutter/bin"
 
-PATH="$PATH:$HOME/.local/bin:$HOME/bin"
 #GUIX_PROFILE="/home/bliss/.guix-profile"
 #source "$GUIX_PROFILE/etc/profile"
